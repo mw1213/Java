@@ -13,6 +13,9 @@ public class Main {
 
         clA.callIncrement();
         clB.callIncrement();
+
+        clA.callChangeName();
+        clB.callChangeName();
     }
 
 }
