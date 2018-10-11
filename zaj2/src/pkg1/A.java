@@ -29,7 +29,7 @@ public class A {
         this.number++;
     }
 
-    private void decrement(){
+    void decrement(){
         this.number--;
     }
 
