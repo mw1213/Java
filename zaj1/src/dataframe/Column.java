@@ -1,5 +1,7 @@
 package dataframe;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +17,16 @@ public class Column {
         list = new ArrayList<>();
 
     }
+
+    public Column (@NotNull Column col) {
+        this.name = col.name;
+        this.type = col.type;
+        list = new ArrayList<>();
+        if (this.list != null) {
+            this.list.addAll(col.list);
+        }
+    }
+
 
     public void addElement(Object el){
         String el_type = el.getClass().toString();
@@ -67,15 +79,5 @@ public class Column {
         return "Name: " + name + " type: " + type + "\n contains: " + list +"\n";
     }
 
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        Column newColumn = new Column(name, type);
-        newColumn.name = new String(name);
-        newColumn.type = new String(type);
-        for(Object ob : list){
-            newColumn.list.add(ob);
-        }
-        return newColumn;
-    }
 
 }

@@ -27,7 +27,7 @@ public class Main {
 
         System.out.println(" -- DataFrame z wiersza [2] -- \n");
         System.out.println(df.iloc(2));
-        System.out.println(" -- DataFrame z wierszy [2,10] -- \n");
-        System.out.println(df.iloc(2, 10));
+        System.out.println(" -- DataFrame z wierszy [4,14] -- \n");
+        System.out.println(df.iloc(4, 14));
     }
 }

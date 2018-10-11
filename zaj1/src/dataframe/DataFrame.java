@@ -63,20 +63,29 @@ public class DataFrame {
 
     public DataFrame get(String[] cols, boolean copy){
         DataFrame newDataFrame = new DataFrame();
-
-        for (String c : cols){
-            for (Column col : columns){
-                if (col.getName().equals(c)){
-                    try {
-                        newDataFrame.columns.add(copy ? (Column) col.clone() : col);
-                    } catch (CloneNotSupportedException e) {
-                        e.printStackTrace();
+        if(copy){
+            for (String c : cols){
+                for (Column col : columns){
+                    if (col.getName().equals(c)){
+                        Column addColumn = new Column(col);
+                        newDataFrame.columns.add(addColumn);
+                        break;
                     }
-                    break;
                 }
             }
+            return newDataFrame;
         }
-        return newDataFrame;
+        else {
+            for (String c : cols){
+                for (Column col : columns){
+                    if (col.getName().equals(c)){
+                        newDataFrame.columns.add(col);
+                    }
+                }
+            }
+            return newDataFrame;
+        }
+
     }
 
     public DataFrame iloc (int i){
