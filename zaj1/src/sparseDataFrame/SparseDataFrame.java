@@ -44,17 +44,40 @@ public class SparseDataFrame extends DataFrame {
         }
     }
 
+    public String[] getColumnsNames(){
+        String[] result = new String[width()];
+        for(int i = 0; i < width(); i++){
+            result[i] = columns.get(i).getName();
+        }
+        return result;
+    }
+    public String[] getColumnsTypes(){
+        String[] result = new String[width()];
+        for(int i = 0; i < width(); i++){
+            result[i] = columns.get(i).getType();
+        }
+        return result;
+    }
+
+    public String getHide(){
+        return columns.get(0).hide;
+    }
+
 
     public DataFrame toDense(){
-        DataFrame result = new DataFrame(getColumnsNames(), getColumnsTypes());
-        int columnCount = getColumnsNames().length;
-        for (int i = 0; i < columns.size(); i++){
-            Object[] objects = new Object[columnCount];
-            for (int j = 0; j < columnCount; j++){
-                objects[j]=columns.get(i).elAtIndex(i);
+        String[] names = this.getColumnsNames();
+        String[] types = this.getColumnsTypes();
+        DataFrame result = new DataFrame();
+
+
+        for (SparseColumn col : columns){
+            Column column = new Column(col.getName(), col.getType());
+            for (int i = 0; i < col.size(); i++){
+                column.addElement(col.elAtIndex(i));
             }
-            result.addRow(objects);
+            result.columns.add(column);
         }
+
         return result;
     }
 
@@ -98,4 +121,76 @@ public class SparseDataFrame extends DataFrame {
         }
         return sb.toString();
     }
+
+    @Override
+    public SparseColumn get(String colName){
+        for (SparseColumn col : columns){
+            if(col.getName().equals(colName)){
+                SparseColumn column = new SparseColumn(col.getName(), col.getType(), col.hide);
+                for (int i = 0; i < col.size(); i++){
+                    column.addElement(col.elAtIndex(i));
+                }
+                return column;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public SparseDataFrame get(String[] colNames, boolean copy){
+        SparseDataFrame result = new SparseDataFrame();
+        if(copy){
+            for (String c : colNames){
+                for (SparseColumn col : columns){
+                    if (col.getName().equals(c)){
+                        SparseColumn addColumn = new SparseColumn(col.getName(), col.getType(), col
+                        .hide);
+                        for (int i = 0; i < col.size(); i++){
+                            addColumn.addElement(col.elAtIndex(i));
+                        }
+                        result.columns.add(addColumn);
+                        break;
+                    }
+                }
+            }
+            return result;
+        }
+        else {
+            for (String c : colNames){
+                for (SparseColumn col : columns){
+                    if (col.getName().equals(c)){
+                        result.columns.add(col);
+                    }
+                }
+            }
+            return result;
+        }
+    }
+
+    @Override
+    public SparseDataFrame iloc (int i){
+        SparseDataFrame result = new SparseDataFrame(getColumnsNames(), getColumnsTypes(), getHide());
+        Object[] addingRow = new Object[width()];
+        for (int j = 0; j<width(); j++){
+            addingRow[j] = columns.get(j).elAtIndex(i);
+        }
+        result.addRow(addingRow);
+        return result;
+    }
+
+    @Override
+    public SparseDataFrame iloc (int from, int to){
+        SparseDataFrame result = new SparseDataFrame(getColumnsNames(), getColumnsTypes(), getHide());
+        from = (from < 0) ? 0 : from;
+        to = (to > columns.get(0).size) ?  columns.get(0).size : to;
+        Object[] addingRow = new Object[width()];
+        for(int j = from; j < to; j++) {
+            for (int i = 0; i < width(); i++) {
+                addingRow[i] = columns.get(i).elAtIndex(j);
+            }
+            result.addRow(addingRow);
+        }
+        return result;
+    }
+
 }
