@@ -7,8 +7,8 @@ import java.util.List;
 
 public class Column {
 
-    private String name;
-    private String type;
+    protected String name;
+    protected String type;
     private List<Object> list;
 
     public Column(String _name, String _type){
@@ -21,10 +21,7 @@ public class Column {
     public Column (@NotNull Column col) {
         this.name = col.name;
         this.type = col.type;
-        list = new ArrayList<>();
-        if (this.list != null) {
-            this.list.addAll(col.list);
-        }
+        this.list = new ArrayList<>(col.list);
     }
 
 

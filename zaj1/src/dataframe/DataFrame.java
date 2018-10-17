@@ -6,9 +6,9 @@ import java.util.List;
 
 public class DataFrame {
 
-    private List<Column> columns;
+    public List<Column> columns;
 
-    DataFrame(String[] names, String[] types){
+    public DataFrame(String[] names, String[] types){
         columns = new ArrayList<>();
         for (int i=0; i<types.length; i++){
             if (i >= names.length) break;
@@ -35,6 +35,10 @@ public class DataFrame {
     public int size(){
         if (columns.isEmpty()) return 0;
         else return columns.get(0).size();
+    }
+
+    public int width(){
+        return columns.size();
     }
 
     public Column get(String colname){
@@ -124,6 +128,22 @@ public class DataFrame {
             out.append(c.toString());
         }
         return out.toString();
+    }
+
+    public String[] getColumnsTypes() {
+        String[] result = new String[width()];
+        for (int i = 0; i < width(); i++) {
+            result[i] = columns.get(i).getType();
+        }
+        return result;
+    }
+
+    public String[] getColumnsNames() {
+        String[] result = new String[width()];
+        for (int i = 0; i < width(); i++) {
+            result[i] = columns.get(i).getName();
+        }
+        return result;
     }
 
 }
