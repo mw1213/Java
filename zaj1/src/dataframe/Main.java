@@ -1,7 +1,9 @@
 package dataframe;
 
+import java.io.IOException;
+
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         DataFrame df = new DataFrame(new String[] {"kol1", "kol2", "kol3"}, new String[]{"int","double","String"});
         df.addRow(1, 12.03, "wiersz1");
         df.addRow(2, 26.12, "wiersz2");
@@ -29,5 +31,9 @@ public class Main {
         System.out.println(df.iloc(2));
         System.out.println(" -- DataFrame z wierszy [4,14] -- \n");
         System.out.println(df.iloc(4, 14));
+//
+        DataFrame read = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\zaj1\\src\\dataframe\\data.csv", new String[] {"Double", "Double", "Double"}, true);
+        System.out.println(read);
+
     }
 }

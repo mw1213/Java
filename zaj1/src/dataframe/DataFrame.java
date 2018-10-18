@@ -1,7 +1,9 @@
 package dataframe;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 
 public class DataFrame {
@@ -21,6 +23,78 @@ public class DataFrame {
 
     public DataFrame() {
         columns = new ArrayList<>();
+    }
+
+
+
+    public DataFrame(String fileName, String [] typeNames, boolean header) throws IOException {
+        columns = new ArrayList<>();
+        String[] colNames = new String[typeNames.length];
+
+        if (header == false){
+            System.out.println("I need colNames passed by you. Give me " + typeNames.length + " names:");
+            Scanner scanner = new Scanner(System.in);
+            for (int i = 0; i<typeNames.length; i++){
+                colNames[i] = scanner.next();
+            }
+
+            for (int i = 0; i<typeNames.length; i++){
+                if (colNames.length <= i) break;
+
+                if (isUnique(colNames[i])){
+                    columns.add(new Column(colNames[i], typeNames[i]));
+                }
+            }
+        }
+
+        FileInputStream fstream;
+        BufferedReader br;
+        fstream = new FileInputStream(fileName);
+
+        if (fstream == null)
+            throw new IOException("File not found!");
+        else
+            br = new BufferedReader(new InputStreamReader(fstream));
+
+
+        String strLine;
+
+        if (header == true){
+            strLine = br.readLine();
+            colNames = strLine.split(",");
+            for (int i = 0; i<typeNames.length; i++){
+                if (colNames.length <= i) break;
+
+                if (isUnique(colNames[i])){
+                    columns.add(new Column(colNames[i], typeNames[i]));
+                }
+            }
+        }
+
+//Read File Line By Line
+        //while ((strLine = br.readLine()) != null)   {
+        for (int a=0; a<10;a++){
+            strLine = br.readLine();
+            String[] row = strLine.split(",");
+            Object[] objects = new Object[row.length];
+
+            if (typeNames[0].equals("Double")) {
+                for (int i = 0; i < row.length; i++) {
+                    objects[i] = Double.parseDouble(row[i]);
+                }
+                addRow(objects);
+            }
+
+            if (typeNames[0].equals("Intiger") || typeNames[0].equals("int")) {
+                for (int i = 0; i < row.length; i++) {
+                    objects[i] = Integer.parseInt(row[i]);
+                }
+                addRow(objects);
+            }
+        }
+
+//Close the input stream
+        br.close();
     }
 
     private boolean isUnique(String name) {

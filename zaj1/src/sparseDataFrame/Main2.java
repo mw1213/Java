@@ -2,8 +2,10 @@ package sparseDataFrame;
 
 import dataframe.*;
 
+import java.io.IOException;
+
 public class Main2 {
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException {
         SparseDataFrame sdf = new SparseDataFrame(new String[]{"kol1", "kol2", "kol3", "kol4"}, new String[]{"int", "int", "int", "int"} , "0");
         sdf.addRow(1, 2, 3, 11);
         sdf.addRow(0, 0, 0, 11);
@@ -42,6 +44,9 @@ public class Main2 {
         System.out.println(sdf.iloc(2));
         System.out.println(" -- SparseDataFrame z wierszy [1,22] -- \n");
         System.out.println(sdf.iloc(1, 22));
+
+        SparseDataFrame read = new SparseDataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\zaj1\\src\\sparseDataFrame\\sparse.csv", new String[] {"Double", "Double", "Double"}, true, "0.0");
+        System.out.println(read);
 
     }
 }
