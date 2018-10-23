@@ -1,6 +1,5 @@
 package dataframe;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +17,7 @@ public class Column {
 
     }
 
-    public Column (@NotNull Column col) {
+    public Column (Column col) {
         this.name = col.name;
         this.type = col.type;
         this.list = new ArrayList<>(col.list);
