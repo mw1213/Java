@@ -21,4 +21,6 @@ public abstract class Value {
 
     public abstract Value create(String s);
 
+    public abstract Object getValue();
+
 }

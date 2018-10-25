@@ -1,7 +1,9 @@
 package value;
 
+import java.lang.Math;
+
 public class DoubleValue extends Value {
-    double value;
+    private double value;
 
     DoubleValue() {
         value = 0.0;
@@ -52,7 +54,7 @@ public class DoubleValue extends Value {
         DoubleValue result = new DoubleValue();
         String toUse = myData.toString();
         double useMe = Double.parseDouble(toUse);
-        result.value = this.value * useMe * useMe;
+        result.value = Math.pow(this.value, useMe);
         return result;
     }
 
@@ -96,8 +98,7 @@ public class DoubleValue extends Value {
     }
     @Override
     public boolean equals(Object other) {
-        if (this.hashCode() == other.hashCode()) return true;
-        return false;
+        return this.hashCode() == other.hashCode();
     }
 
     @Override
@@ -107,11 +108,14 @@ public class DoubleValue extends Value {
     }
 
     @Override
-    public DoubleValue create(String s) {
+    public Value create(String s) {
         DoubleValue result = new DoubleValue();
         result.value = Double.parseDouble(s);
         return result;
     }
 
-
+    @Override
+    public Double getValue(){
+        return this.value;
+    }
 }

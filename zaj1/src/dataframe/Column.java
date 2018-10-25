@@ -3,16 +3,17 @@ package dataframe;
 
 import java.util.ArrayList;
 import java.util.List;
+import value.*;
 
 public class Column {
 
     protected String name;
-    protected String type;
-    private List<Object> list;
+    protected Class<? extends Value> type;
+    private List<Value> list;
 
-    public Column(String _name, String _type){
+    public Column(String _name, Class<? extends Value> _type){
         this.name = _name;
-        this.type = fixedType(_type);
+        this.type = _type;
         list = new ArrayList<>();
 
     }
@@ -24,13 +25,12 @@ public class Column {
     }
 
 
-    public void addElement(Object el){
-        String el_type = el.getClass().toString();
-        if(el_type.contains(this.type)) list.add(el);
+    public void addElement(Value el){
+        if (type.isInstance(el)) list.add(el);
     }
 
 
-    public String getType() {
+    public Class<? extends Value> getType() {
         return type;
     }
 
@@ -42,7 +42,7 @@ public class Column {
         return list.size();
     }
 
-    public Object elAtIndex(int index){
+    public Value elAtIndex(int index){
         return list.get(index);
     }
 

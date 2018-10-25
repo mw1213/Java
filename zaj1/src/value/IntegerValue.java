@@ -118,10 +118,15 @@ public class IntegerValue extends Value {
     }
 
     @Override
-    public IntegerValue create(String s){
+    public Value create(String s){
         IntegerValue result = new IntegerValue();
         result.value = Integer.parseInt(s);
         return result;
+    }
+
+    @Override
+    public Integer getValue(){
+        return this.value;
     }
 
 }

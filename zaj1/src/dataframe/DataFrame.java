@@ -4,13 +4,15 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import value.*;
+
 
 
 public class DataFrame {
 
     public List<Column> columns;
 
-    public DataFrame(String[] names, String[] types){
+    public DataFrame(String[] names, Class<? extends Value>[] types){
         columns = new ArrayList<>();
         for (int i=0; i<types.length; i++){
             if (i >= names.length) break;
@@ -27,7 +29,7 @@ public class DataFrame {
 
 
 
-    public DataFrame(String fileName, String [] typeNames, boolean header) throws IOException {
+    public DataFrame(String fileName, Class<? extends Value>[] typeNames, boolean header) throws IOException {
         columns = new ArrayList<>();
         String[] colNames = new String[typeNames.length];
 
@@ -73,24 +75,15 @@ public class DataFrame {
 
 //Read File Line By Line
         //while ((strLine = br.readLine()) != null)   {
-        for (int a=0; a<10;a++){
-            strLine = br.readLine();
-            String[] row = strLine.split(",");
-            Object[] objects = new Object[row.length];
-
-            if (typeNames[0].equals("Double")) {
-                for (int i = 0; i < row.length; i++) {
-                    objects[i] = Double.parseDouble(row[i]);
-                }
-                addRow(objects);
+        Class<? extends Value>[] columnClass = getClasses();
+        IntegerValue integerValue = new IntegerValue(11);
+        Value[] values = new Value[columns.size()];
+        while ((strLine = br.readLine()) != null)   {
+            String[] str = strLine.split(",");
+            for (int i = 0; i < str.length; i++) {
+                values[i] = integerValue.create(str[i]);
             }
-
-            if (typeNames[0].equals("Intiger") || typeNames[0].equals("int")) {
-                for (int i = 0; i < row.length; i++) {
-                    objects[i] = Integer.parseInt(row[i]);
-                }
-                addRow(objects);
-            }
+            addRow(values.clone());
         }
 
 //Close the input stream
@@ -122,12 +115,12 @@ public class DataFrame {
         return null;
     }
 
-    public boolean addRow(Object... objects){
+    public boolean addRow(Value... objects){
         if (columns.size() != objects.length) return false;
 
         for (int i =0; i<columns.size(); i++) {
             String el_type = objects[i].getClass().toString();
-            String col_type = columns.get(i).getType();
+            String col_type = columns.get(i).getType().toString();
             if(!el_type.contains(col_type)) return false;
         }
 
@@ -204,8 +197,8 @@ public class DataFrame {
         return out.toString();
     }
 
-    public String[] getColumnsTypes() {
-        String[] result = new String[width()];
+    public Class<? extends Value>[] getColumnsTypes() {
+        Class[] result = new Class[width()];
         for (int i = 0; i < width(); i++) {
             result[i] = columns.get(i).getType();
         }
@@ -218,6 +211,14 @@ public class DataFrame {
             result[i] = columns.get(i).getName();
         }
         return result;
+    }
+
+    public Class<? extends Value>[] getClasses(){
+        Class[] classes = new Class[columns.size()];
+        for (int i = 0; i < classes.length ; i++) {
+            classes[i] = columns.get(i).getType();
+        }
+        return classes;
     }
 
 }

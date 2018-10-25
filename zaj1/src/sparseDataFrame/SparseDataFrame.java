@@ -1,4 +1,4 @@
-package sparseDataFrame;
+package SparseDataFrame;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.*;
 import dataframe.*;
-
+import value.*;
 
 public class SparseDataFrame extends DataFrame {
 
@@ -16,18 +16,18 @@ public class SparseDataFrame extends DataFrame {
         columns = new ArrayList<>();
     }
 
-    public SparseDataFrame(String[] colNames, String[] typeNames, String _hide){
+    public SparseDataFrame(String[] colNames, Class<? extends Value>[] typeNames, Value _hide){
         columns = new ArrayList<>(colNames.length);
         for (String name : colNames){
             columns.add(new SparseColumn(name, typeNames[0], _hide));
         }
     }
 
-    public SparseDataFrame(DataFrame dataFrame, String _hide){
+    public SparseDataFrame(DataFrame dataFrame, Value _hide){
         if (dataFrame.width() > 0) {
-            String[] columnTypes = dataFrame.getColumnsTypes();
-            String firstType = columnTypes[0];
-            for (String type : columnTypes){
+            Class<? extends Value>[] columnTypes = dataFrame.getColumnsTypes();
+            Class<? extends Value> firstType = columnTypes[0];
+            for (Class<? extends Value> type : columnTypes){
                 if (!type.equals(firstType))
                     throw new UnsupportedOperationException("Has more than one type of data in it.");
             }
@@ -38,7 +38,7 @@ public class SparseDataFrame extends DataFrame {
             }
 
             for (int i=0; i<dataFrame.size();i++){
-                Object[] addingRow = new Object[dataFrame.width()];
+                Value[] addingRow = new Value[dataFrame.width()];
                 for (int j=0; j<dataFrame.width(); j++){
                     addingRow[j] = dataFrame.columns.get(j).elAtIndex(i);
                 }
@@ -47,7 +47,7 @@ public class SparseDataFrame extends DataFrame {
 
         }
     }
-
+/*
     public SparseDataFrame(String fileName, String [] typeNames, boolean header, String _hide) throws IOException {
         columns = new ArrayList<>();
         String[] colNames = new String[typeNames.length];
@@ -92,7 +92,7 @@ public class SparseDataFrame extends DataFrame {
         for (int a=0; a<10;a++){
             strLine = br.readLine();
             String[] row = strLine.split(",");
-            Object[] objects = new Object[row.length];
+            Value[] objects = new Value[row.length];
 
             if (typeNames[0].equals("Double")) {
                 for (int i = 0; i < row.length; i++) {
@@ -112,7 +112,8 @@ public class SparseDataFrame extends DataFrame {
 //Close the input stream
         br.close();
     }
-
+*/
+    @Override
     public String[] getColumnsNames(){
         String[] result = new String[width()];
         for(int i = 0; i < width(); i++){
@@ -120,22 +121,25 @@ public class SparseDataFrame extends DataFrame {
         }
         return result;
     }
-    public String[] getColumnsTypes(){
-        String[] result = new String[width()];
+
+    @Override
+    public Class<? extends Value>[] getColumnsTypes(){
+        Class[] result = new Class[width()];
         for(int i = 0; i < width(); i++){
             result[i] = columns.get(i).getType();
         }
         return result;
     }
 
-    public String getHide(){
+
+    public Value getHide(){
         return columns.get(0).hide;
     }
 
 
     public DataFrame toDense(){
         String[] names = this.getColumnsNames();
-        String[] types = this.getColumnsTypes();
+        Class[] types = this.getColumnsTypes();
         DataFrame result = new DataFrame();
 
 
@@ -151,13 +155,12 @@ public class SparseDataFrame extends DataFrame {
     }
 
     @Override
-    public boolean addRow(Object... objects){
+    public boolean addRow(Value... objects){
         if (columns.size() != objects.length) return false;
 
         for (int i =0; i<columns.size(); i++) {
-            String el_type = objects[i].getClass().toString();
-            String col_type = columns.get(i).getType();
-            if(!el_type.contains(col_type)) return false;
+            Class<? extends Value> el_type = objects[i].getClass();
+            if(!el_type.equals(this.columns.getClass())) return false;
         }
 
         for(int i = 0; i < objects.length; i++){
@@ -239,7 +242,7 @@ public class SparseDataFrame extends DataFrame {
     @Override
     public SparseDataFrame iloc (int i){
         SparseDataFrame result = new SparseDataFrame(getColumnsNames(), getColumnsTypes(), getHide());
-        Object[] addingRow = new Object[width()];
+        Value[] addingRow = new Value[width()];
         for (int j = 0; j<width(); j++){
             addingRow[j] = columns.get(j).elAtIndex(i);
         }
@@ -252,7 +255,7 @@ public class SparseDataFrame extends DataFrame {
         SparseDataFrame result = new SparseDataFrame(getColumnsNames(), getColumnsTypes(), getHide());
         from = (from < 0) ? 0 : from;
         to = (to > columns.get(0).size) ?  columns.get(0).size : to;
-        Object[] addingRow = new Object[width()];
+        Value[] addingRow = new Value[width()];
         for(int j = from; j < to; j++) {
             for (int i = 0; i < width(); i++) {
                 addingRow[i] = columns.get(i).elAtIndex(j);

@@ -1,11 +1,12 @@
-package sparseDataFrame;
+package SparseDataFrame;
 
 import dataframe.*;
 import java.util.ArrayList;
 import java.util.List;
+import value.*;
 
 public class SparseColumn extends Column {
-    protected String hide;
+    protected Value hide;
     protected List<COOValue> list;
     protected int size;
 
@@ -17,18 +18,18 @@ public class SparseColumn extends Column {
         return list;
     }
 
-    public SparseColumn(String _name, String _type, String _hide){
+    public SparseColumn(String _name, Class<? extends Value> _type, Value _hide){
         super(_name, _type);
         this.list = new ArrayList<>();
         this.hide = _hide;
     }
 
-    public SparseColumn(Column column, String _hide){
+    public SparseColumn(Column column, Value _hide){
         super(column);
         this.hide = _hide;
     }
 
-    public Object hideToType(){
+    /*public Object hideToType(){
         switch (type){
             case "Boolean":
                 return hide;
@@ -66,9 +67,10 @@ public class SparseColumn extends Column {
             }
         }
     }
+    */
 
     @Override
-    public Object elAtIndex (int _index){
+    public Value elAtIndex (int _index){
         if (_index > size){
             throw new IllegalArgumentException("Out of size");
         }
@@ -77,15 +79,14 @@ public class SparseColumn extends Column {
                 return data.getValue();
             }
         }
-        return hideToType();
+        return hide;
 
     }
 
     @Override
-    public void addElement(Object el){
-        String el_type = el.getClass().toString();
-        if(el_type.contains(this.type)){
-            if (!el.toString().equals(this.hide)){
+    public void addElement(Value el){
+        if(this.type.isInstance(el)){
+            if (!el.equals(this.hide)){
                 list.add(new COOValue(size, el));
                 this.size++;
             }
