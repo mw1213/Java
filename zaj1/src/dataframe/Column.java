@@ -75,5 +75,13 @@ public class Column {
         return "Name: " + name + " type: " + type + "\n contains: " + list +"\n";
     }
 
-
+    /**
+     *
+     * @param element
+     * @return
+     */
+    public boolean checkElement (Value element){
+        if (type.isInstance(element)) return true;
+        return false;
+    }
 }

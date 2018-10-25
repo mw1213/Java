@@ -12,6 +12,11 @@ public class DataFrame {
 
     public List<Column> columns;
 
+    /**]
+     * normal constructor
+     * @param names gives names of the columns
+     * @param types gives types of data in columns
+     */
     public DataFrame(String[] names, Class<? extends Value>[] types){
         columns = new ArrayList<>();
         for (int i=0; i<types.length; i++){
@@ -23,73 +28,89 @@ public class DataFrame {
         }
     }
 
+    /**
+     * constructor for getting empty DataFrame
+     */
     public DataFrame() {
         columns = new ArrayList<>();
     }
 
 
+    /**
+     * constructor with reading data from file
+     * @param address file from which data is read
+     * @param types types of data in columns
+     * @param header boolean defining weather column names are written in file or not
+     * @throws IOException
+     */
 
-    public DataFrame(String fileName, Class<? extends Value>[] typeNames, boolean header) throws IOException {
+    public DataFrame(String address, Class<? extends Value>[] types, boolean header) throws IOException {
+
         columns = new ArrayList<>();
-        String[] colNames = new String[typeNames.length];
-
-        if (header == false){
-            System.out.println("I need colNames passed by you. Give me " + typeNames.length + " names:");
-            Scanner scanner = new Scanner(System.in);
-            for (int i = 0; i<typeNames.length; i++){
-                colNames[i] = scanner.next();
-            }
-
-            for (int i = 0; i<typeNames.length; i++){
-                if (colNames.length <= i) break;
-
-                if (isUnique(colNames[i])){
-                    columns.add(new Column(colNames[i], typeNames[i]));
-                }
-            }
-        }
-
         FileInputStream fstream;
         BufferedReader br;
-        fstream = new FileInputStream(fileName);
+
+        fstream = new FileInputStream(address);
 
         if (fstream == null)
             throw new IOException("File not found!");
         else
             br = new BufferedReader(new InputStreamReader(fstream));
 
-
-        String strLine;
-
-        if (header == true){
-            strLine = br.readLine();
-            colNames = strLine.split(",");
-            for (int i = 0; i<typeNames.length; i++){
-                if (colNames.length <= i) break;
-
-                if (isUnique(colNames[i])){
-                    columns.add(new Column(colNames[i], typeNames[i]));
-                }
+        String strLine=br.readLine();
+        String[] separated=strLine.split(",");
+        String[] names= new String[types.length];
+        if (!header){
+            Scanner odczyt = new Scanner(System.in);
+            for (int l=0;l<types.length;l++){
+                System.out.print("Podaj nazwę kolumny: ");
+                names[l] = odczyt.nextLine();
             }
         }
-
-//Read File Line By Line
-        //while ((strLine = br.readLine()) != null)   {
-        Class<? extends Value>[] columnClass = getClasses();
-        IntegerValue integerValue = new IntegerValue(11);
-        Value[] values = new Value[columns.size()];
-        while ((strLine = br.readLine()) != null)   {
-            String[] str = strLine.split(",");
-            for (int i = 0; i < str.length; i++) {
-                values[i] = integerValue.create(str[i]);
+        if (header){
+            for (int m=0;m<types.length;m++){
+                names[m]=separated[m];
             }
-            addRow(values.clone());
         }
+        for (int i = 0; i < types.length; i++) {
+            if((separated.length <= i)) {
+                break;
+            }
+            columns.add(new Column(names[i], types[i]));
+        }
+        Value[] values= new Value[columns.size()];
+        int a=0;
+        //while ((strLine = br.readLine()) != null){
+        for (int b=0; b<10;b++){
+            if(a>0 || (a==0 && header)){
+                strLine=br.readLine();
+                if(strLine==null) break;
+                separated=strLine.split(",");
+            }
+            for (int i = 0; i < values.length; i++) {
+                DoubleValue value = new DoubleValue();
+                values[i] = value.create(separated[i]);
+            }
 
-//Close the input stream
+            if(columns.size()!=values.length){
+                continue;
+            }
+            for (int j=0;j<values.length;j++){
+                if (!columns.get(j).checkElement(values[j])) continue;
+            }
+            for (int i=0;i<values.length;i++){
+                columns.get(i).addElement(values[i]);
+            }
+        }
         br.close();
+
     }
 
+    /**
+     *
+     * @param name name for new column
+     * @return true when column name is unique and can be added to the dataframe
+     */
     private boolean isUnique(String name) {
         for(Column c : columns) {
             if(c.getName().equals(name)) {
@@ -99,14 +120,28 @@ public class DataFrame {
         return true;
     }
 
+    /**
+     * by default columns are the same size
+     * @return size of columns
+     */
     public int size(){
         if (columns.isEmpty()) return 0;
         else return columns.get(0).size();
     }
 
+    /**
+     *
+     * @return number of columns
+     */
     public int width(){
         return columns.size();
     }
+
+    /**
+     *
+     * @param colname column to return
+     * @return one column from the dataframe
+     */
 
     public Column get(String colname){
         for (Column col : columns){
@@ -115,6 +150,11 @@ public class DataFrame {
         return null;
     }
 
+    /**
+     *
+     * @param objects values to add to the dataframe
+     * @return boolean to know if row was added
+     */
     public boolean addRow(Value... objects){
         if (columns.size() != objects.length) return false;
 
@@ -131,7 +171,12 @@ public class DataFrame {
 
     }
 
-
+    /**
+     *
+     * @param cols names of columns to the new dataframe
+     * @param copy boolean defining weather to create new objects or just pass another pointer to data
+     * @return new dataframe from chosen columns
+     */
     public DataFrame get(String[] cols, boolean copy){
         DataFrame newDataFrame = new DataFrame();
         if(copy){
@@ -159,6 +204,11 @@ public class DataFrame {
 
     }
 
+    /**
+     *
+     * @param i index of row which should be returned
+     * @return new dataframe with chosen row
+     */
     public DataFrame iloc (int i){
         DataFrame output = new DataFrame();
 
@@ -173,6 +223,12 @@ public class DataFrame {
         return output;
     }
 
+    /**
+     *
+     * @param from row from which it begins to copy
+     * @param to ending row
+     * @return SDF with rows from range: from - to
+     */
     public DataFrame iloc (int from, int to){
         DataFrame output = new DataFrame();
         from = (from < 0) ? 0 : from;
@@ -188,6 +244,10 @@ public class DataFrame {
         return output;
     }
 
+    /**
+     *
+     * @return string for display
+     */
     @Override
     public String toString() {
         StringBuilder out = new StringBuilder();
@@ -197,6 +257,10 @@ public class DataFrame {
         return out.toString();
     }
 
+    /**
+     *
+     * @return types of data in dataframe
+     */
     public Class<? extends Value>[] getColumnsTypes() {
         Class[] result = new Class[width()];
         for (int i = 0; i < width(); i++) {
@@ -205,6 +269,10 @@ public class DataFrame {
         return result;
     }
 
+    /**
+     *
+     * @return names of columns
+     */
     public String[] getColumnsNames() {
         String[] result = new String[width()];
         for (int i = 0; i < width(); i++) {
@@ -213,12 +281,5 @@ public class DataFrame {
         return result;
     }
 
-    public Class<? extends Value>[] getClasses(){
-        Class[] classes = new Class[columns.size()];
-        for (int i = 0; i < classes.length ; i++) {
-            classes[i] = columns.get(i).getType();
-        }
-        return classes;
-    }
 
 }

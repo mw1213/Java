@@ -6,6 +6,11 @@ public class COOValue extends Value {
     private int index;
     private Value value;
 
+    /**
+     * constructor
+     * @param _index gives index to save
+     * @param _value gives value to save
+     */
     public COOValue(int _index, Value _value) {
         this.index = _index;
         this.value = _value;
@@ -34,7 +39,7 @@ public class COOValue extends Value {
     public String toString() {
         return "COOValue{" +
                 "index=" + index +
-                ", value=" + value +
+                ", value=" + value.toString()+
                 '}';
     }
 

@@ -1,5 +1,6 @@
 package dataframe;
 
+import value.DoubleValue;
 import value.IntegerValue;
 
 import java.io.IOException;
@@ -30,9 +31,10 @@ public class Main {
         System.out.println(df.iloc(2));
         System.out.println(" -- DataFrame z wierszy [4,14] -- \n");
         System.out.println(df.iloc(4, 14));
-//
-        DataFrame read = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\zaj1\\src\\dataframe\\data.csv", new Class[]{IntegerValue.class, IntegerValue.class}, true);
+        //DataFrame read = new DataFrame("X:\\maciejw\\java_course\\zaj1\\src\\dataframe\\data.csv", new Class[]{DoubleValue.class, DoubleValue.class, DoubleValue.class}, true);
+        DataFrame read = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\zaj1\\src\\dataframe\\data.csv", new Class[]{DoubleValue.class, DoubleValue.class, DoubleValue.class}, true);
         System.out.println(read);
 
+        System.out.println(df.get("col1"));
     }
 }

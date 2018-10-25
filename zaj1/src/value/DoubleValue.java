@@ -5,7 +5,7 @@ import java.lang.Math;
 public class DoubleValue extends Value {
     private double value;
 
-    DoubleValue() {
+    public DoubleValue() {
         value = 0.0;
     }
 

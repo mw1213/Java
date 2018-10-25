@@ -12,16 +12,31 @@ public class SparseDataFrame extends DataFrame {
 
     public List<SparseColumn> columns;
 
+    /**
+     * constructor for getting empty sparseDataFrame
+     */
     public SparseDataFrame(){
         columns = new ArrayList<>();
     }
 
+    /**
+     * normal constructor
+     * @param colNames gives names of columns
+     * @param typeNames gives types of columns
+     * @param _hide gives data which shouldn't be saved
+     */
     public SparseDataFrame(String[] colNames, Class<? extends Value>[] typeNames, Value _hide){
         columns = new ArrayList<>(colNames.length);
         for (String name : colNames){
             columns.add(new SparseColumn(name, typeNames[0], _hide));
         }
     }
+
+    /**
+     * creating SparseDataFrame from DataFrame
+     * @param dataFrame gives DataFrame from which is created new SPD
+     * @param _hide gives data which shouldn't be saved
+     */
 
     public SparseDataFrame(DataFrame dataFrame, Value _hide){
         if (dataFrame.width() > 0) {
@@ -47,8 +62,16 @@ public class SparseDataFrame extends DataFrame {
 
         }
     }
-/*
-    public SparseDataFrame(String fileName, String [] typeNames, boolean header, String _hide) throws IOException {
+
+    /**
+     * reading data from file
+     * @param fileName file from which data is read
+     * @param typeNames values read
+     * @param header boolean defining weather column names are written in the file or not
+     * @param _hide data which shouldn't be saved
+     * @throws IOException
+     */
+    public SparseDataFrame(String fileName, Class<? extends Value>[] typeNames, boolean header, Value _hide) throws IOException {
         columns = new ArrayList<>();
         String[] colNames = new String[typeNames.length];
 
@@ -88,31 +111,37 @@ public class SparseDataFrame extends DataFrame {
         }
 
 //Read File Line By Line
+        Value[] values = new Value[columns.size()];
         //while ((strLine = br.readLine()) != null)   {
         for (int a=0; a<10;a++){
             strLine = br.readLine();
+            if (strLine==null) break;
             String[] row = strLine.split(",");
-            Value[] objects = new Value[row.length];
 
-            if (typeNames[0].equals("Double")) {
-                for (int i = 0; i < row.length; i++) {
-                    objects[i] = Double.parseDouble(row[i]);
-                }
-                addRow(objects);
+            for (int i=0; i<values.length; i++){
+                DoubleValue value = new DoubleValue();
+                values[i] = value.create(row[i]);
             }
-
-            if (typeNames[0].equals("Intiger") || typeNames[0].equals("int")) {
-                for (int i = 0; i < row.length; i++) {
-                    objects[i] = Integer.parseInt(row[i]);
-                }
-                addRow(objects);
+            if (columns.size()!=values.length){
+                continue;
+            }
+            for (int i=0; i<values.length;i++){
+                if (!columns.get(i).checkElement(values[i])) continue;
+            }
+            for (int i=0; i<values.length;i++){
+                columns.get(i).addElement(values[i]);
             }
         }
 
 //Close the input stream
         br.close();
     }
-*/
+
+
+    /**
+     *
+     * @return names of the columns
+     */
     @Override
     public String[] getColumnsNames(){
         String[] result = new String[width()];
@@ -122,6 +151,10 @@ public class SparseDataFrame extends DataFrame {
         return result;
     }
 
+    /**
+     *
+     * @return types of columns as a Class array
+     */
     @Override
     public Class<? extends Value>[] getColumnsTypes(){
         Class[] result = new Class[width()];
@@ -131,12 +164,18 @@ public class SparseDataFrame extends DataFrame {
         return result;
     }
 
-
+    /**
+     *
+     * @return hide value
+     */
     public Value getHide(){
         return columns.get(0).hide;
     }
 
-
+    /**
+     * reversing SDF to DF
+     * @return DataFrame made of SparseDataFrame
+     */
     public DataFrame toDense(){
         String[] names = this.getColumnsNames();
         Class[] types = this.getColumnsTypes();
@@ -154,14 +193,14 @@ public class SparseDataFrame extends DataFrame {
         return result;
     }
 
+    /**
+     * adding row to  SDF
+     * @param objects are values which shold be added to the SDF
+     * @return
+     */
     @Override
     public boolean addRow(Value... objects){
         if (columns.size() != objects.length) return false;
-
-        for (int i =0; i<columns.size(); i++) {
-            Class<? extends Value> el_type = objects[i].getClass();
-            if(!el_type.equals(this.columns.getClass())) return false;
-        }
 
         for(int i = 0; i < objects.length; i++){
             columns.get(i).addElement(objects[i]);
@@ -169,21 +208,36 @@ public class SparseDataFrame extends DataFrame {
         return true;
     }
 
+    /**
+     * by default every column has the same size
+     * @return size of the columns
+     */
     public String printSize(){
         return "Size: " + columns.get(0).size;
     }
 
+    /**
+     * printing saved data (to check if i don't save hide value)
+     */
     public void printCOOValue(){
         for(SparseColumn col : columns){
             System.out.println(col.list);
         }
     }
 
+    /**
+     *
+     * @return number of columns
+     */
     @Override
     public int width(){
         return columns.size();
     }
 
+    /**
+     *
+     * @return string for showing on the screen
+     */
     @Override
     public String toString(){
         StringBuilder sb = new StringBuilder();
@@ -194,6 +248,11 @@ public class SparseDataFrame extends DataFrame {
         return sb.toString();
     }
 
+    /**
+     *
+     * @param colName gives name of column to return
+     * @return column gave in the parameter
+     */
     @Override
     public SparseColumn get(String colName){
         for (SparseColumn col : columns){
@@ -208,6 +267,12 @@ public class SparseDataFrame extends DataFrame {
         return null;
     }
 
+    /**
+     *
+     * @param colNames names of the columns to return
+     * @param copy boolean defining weather to creat new objects or not
+     * @return SDF made from columns gave in the parameter
+     */
     @Override
     public SparseDataFrame get(String[] colNames, boolean copy){
         SparseDataFrame result = new SparseDataFrame();
@@ -239,6 +304,11 @@ public class SparseDataFrame extends DataFrame {
         }
     }
 
+    /**
+     *
+     * @param i is index which should be returned
+     * @return SDF which has one row from old SDF
+     */
     @Override
     public SparseDataFrame iloc (int i){
         SparseDataFrame result = new SparseDataFrame(getColumnsNames(), getColumnsTypes(), getHide());
@@ -250,6 +320,12 @@ public class SparseDataFrame extends DataFrame {
         return result;
     }
 
+    /**
+     *
+     * @param from row from which it begins to copy
+     * @param to ending row
+     * @return SDF with rows from range: from - to
+     */
     @Override
     public SparseDataFrame iloc (int from, int to){
         SparseDataFrame result = new SparseDataFrame(getColumnsNames(), getColumnsTypes(), getHide());
