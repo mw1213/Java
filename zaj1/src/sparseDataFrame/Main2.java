@@ -1,7 +1,7 @@
 package SparseDataFrame;
 
 import dataframe.*;
-import value.IntegerValue;
+import value.*;
 
 import java.io.IOException;
 
@@ -46,8 +46,11 @@ public class Main2 {
         System.out.println(" -- SparseDataFrame z wierszy [1,22] -- \n");
         System.out.println(sdf.iloc(1, 22));
 
-        //SparseDataFrame read = new SparseDataFrame("X:\\maciejw\\java_course\\zaj1\\src\\sparseDataFrame\\sparse.csv", new String[] {"Double", "Double", "Double"}, true, "0.0");
-        //System.out.println(read);
+        //SparseDataFrame read = new SparseDataFrame("X:\\maciejw\\java_course\\zaj1\\src\\sparseDataFrame\\sparse.csv", new Class[]{DoubleValue.class, DoubleValue.class, DoubleValue.class}, true, new DoubleValue().create("0.0"));
+        SparseDataFrame read = new SparseDataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\zaj1\\src\\SparseDataFrame\\sparse.csv", new Class[]{DoubleValue.class, DoubleValue.class, DoubleValue.class}, true, new DoubleValue().create("0.0"));
+        System.out.println(read);
+
+        System.out.println(sdf.get("kol1"));
 
     }
 }
