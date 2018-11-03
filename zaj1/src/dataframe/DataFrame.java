@@ -2,7 +2,8 @@ package dataframe;
 
 import java.io.*;
 import java.util.*;
-
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import groupby.*;
 import value.*;
 
@@ -44,7 +45,7 @@ public class DataFrame implements Groupby, Applyable {
      * @throws IOException
      */
 
-    public DataFrame(String address, Class<? extends Value>[] types, boolean header) throws IOException {
+    public DataFrame(String address, Class<? extends Value>[] types, boolean header) throws IOException, IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException {
 
         columns = new ArrayList<>();
         FileInputStream fstream;
@@ -79,28 +80,19 @@ public class DataFrame implements Groupby, Applyable {
             columns.add(new Column(names[i], types[i]));
         }
         Value[] values= new Value[columns.size()];
-        int a=0;
+        List<Constructor<? extends Value>> constructors = new ArrayList<>(types.length);
+        for (int i=0;i<types.length;i++){
+            constructors.add(types[i].getConstructor(String.class));
+        }
         //while ((strLine = br.readLine()) != null){
-        for (int b=0; b<10;b++){
-            if(a>0 || (a==0 && header)){
-                strLine=br.readLine();
-                if(strLine==null) break;
-                separated=strLine.split(",");
+        for (int b=0; b<50;b++) {
+            strLine = br.readLine();
+            String[] str = strLine.split(",");
+            for (int i = 0; i<str.length; i++){
+                values[i] = constructors.get(i).newInstance(str[i]);
             }
-            for (int i = 0; i < values.length; i++) {
-                DoubleValue value = new DoubleValue();
-                values[i] = value.create(separated[i]);
-            }
+            addRow(values);
 
-            if(columns.size()!=values.length){
-                continue;
-            }
-            for (int j=0;j<values.length;j++){
-                if (!columns.get(j).checkElement(values[j])) continue;
-            }
-            for (int i=0;i<values.length;i++){
-                columns.get(i).addElement(values[i]);
-            }
         }
         br.close();
 

@@ -5,9 +5,11 @@ import java.lang.Math;
 public class StringValue extends Value {
     private String value;
 
-    StringValue(){
+    public StringValue(){
         value = null;
     }
+
+    public StringValue(String s) {this.value = s;}
 
     @Override
     public String toString() {

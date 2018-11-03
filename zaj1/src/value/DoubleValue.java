@@ -9,6 +9,10 @@ public class DoubleValue extends Value {
         value = 0.0;
     }
 
+    public DoubleValue(String s){
+        value = Double.parseDouble(s);
+    }
+
     @Override
     public String toString() {
         return Double.toString(value);

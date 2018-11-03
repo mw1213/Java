@@ -4,9 +4,10 @@ import dataframe.*;
 import value.*;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 public class Main2 {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         SparseDataFrame sdf = new SparseDataFrame(new String[]{"kol1", "kol2", "kol3", "kol4"}, new Class[]{IntegerValue.class, IntegerValue.class, IntegerValue.class} , new IntegerValue(0));
         sdf.addRow(new IntegerValue(1), new IntegerValue(2), new IntegerValue(3), new IntegerValue(11));
         sdf.addRow(new IntegerValue(0), new IntegerValue(0), new IntegerValue(0), new IntegerValue(11));

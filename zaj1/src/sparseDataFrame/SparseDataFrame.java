@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import dataframe.*;
 import value.*;
@@ -71,7 +73,7 @@ public class SparseDataFrame extends DataFrame {
      * @param _hide data which shouldn't be saved
      * @throws IOException
      */
-    public SparseDataFrame(String fileName, Class<? extends Value>[] typeNames, boolean header, Value _hide) throws IOException {
+    public SparseDataFrame(String fileName, Class<? extends Value>[] typeNames, boolean header, Value _hide) throws IOException, IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException {
         columns = new ArrayList<>();
         String[] colNames = new String[typeNames.length];
 
@@ -110,27 +112,21 @@ public class SparseDataFrame extends DataFrame {
             }
         }
 
+        Value[] values= new Value[columns.size()];
+        List<Constructor<? extends Value>> constructors = new ArrayList<>(typeNames.length);
+        for (int i=0;i<typeNames.length;i++){
+            constructors.add(typeNames[i].getConstructor(String.class));
+        }
 //Read File Line By Line
-        Value[] values = new Value[columns.size()];
         //while ((strLine = br.readLine()) != null)   {
-        for (int a=0; a<10;a++){
+        for (int a=0; a<50;a++){
             strLine = br.readLine();
             if (strLine==null) break;
-            String[] row = strLine.split(",");
-
-            for (int i=0; i<values.length; i++){
-                DoubleValue value = new DoubleValue();
-                values[i] = value.create(row[i]);
+            String[] str = strLine.split(",");
+            for (int i = 0; i<str.length; i++){
+                values[i] = constructors.get(i).newInstance(str[i]);
             }
-            if (columns.size()!=values.length){
-                continue;
-            }
-            for (int i=0; i<values.length;i++){
-                if (!columns.get(i).checkElement(values[i])) continue;
-            }
-            for (int i=0; i<values.length;i++){
-                columns.get(i).addElement(values[i]);
-            }
+            addRow(values);
         }
 
 //Close the input stream
