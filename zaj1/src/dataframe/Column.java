@@ -84,4 +84,10 @@ public class Column {
         if (type.isInstance(element)) return true;
         return false;
     }
+
+    public void changeMyList(Value el){
+        for (int i = 0 ; i<list.size(); i++){
+            list.get(i).add(el);
+        }
+    }
 }

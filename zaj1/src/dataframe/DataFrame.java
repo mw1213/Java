@@ -1,14 +1,14 @@
 package dataframe;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+
+import groupby.*;
 import value.*;
 
 
 
-public class DataFrame {
+public class DataFrame implements Groupby, Applyable {
 
     public List<Column> columns;
 
@@ -282,4 +282,76 @@ public class DataFrame {
     }
 
 
+    /**
+     * implementin Groupby interface methods
+     * @param s name of column to sort for
+     * @return
+     */
+
+    public HashMap<Value, DataFrame> grupby(String s) {
+        HashMap<Value, DataFrame> result = new HashMap<>();
+        String[] colNames = getColumnsNames();
+        int indexForColumn = 0;
+        for (int i=0; i<colNames.length; i++){
+            if (s.equals(colNames[i])) indexForColumn = i;
+        }
+
+        for (Value val : columns[indexForColumn]){
+            result.put(val, )
+        }
+
+
+        for (int i = 0; i<width(); i++){
+
+        }
+
+        return result;
+    }
+
+    public DataFrame grupby(String[] colNames){
+        return null;
+    }
+
+    @Override
+    public DataFrame max() {
+
+
+        return null;
+    }
+
+    @Override
+    public DataFrame min() {
+        return null;
+    }
+
+    @Override
+    public DataFrame mean() {
+        return null;
+    }
+
+    @Override
+    public DataFrame std() {
+        return null;
+    }
+
+    @Override
+    public DataFrame sum() {
+        return null;
+    }
+
+    @Override
+    public DataFrame var() {
+        return null;
+    }
+
+    @Override
+    public DataFrame apply() {
+        for (int i=0; i<this.width(); i++){
+            for (Column col : columns){
+                col.changeMyList(new DoubleValue().create("2.0"));
+            }
+        }
+
+        return null;
+    }
 }

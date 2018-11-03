@@ -1,6 +1,8 @@
 package value;
 
-public abstract class Value {
+import groupby.*;
+
+public abstract class Value implements Cloneable {
 
 
     public abstract String toString();
@@ -22,5 +24,11 @@ public abstract class Value {
     public abstract Value create(String s);
 
     public abstract Object getValue();
+
+    @Override
+    public Value clone() throws  CloneNotSupportedException{
+        Value clone = (Value)super.clone();
+        return clone;
+    };
 
 }

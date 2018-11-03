@@ -31,6 +31,7 @@ public class DoubleValue extends Value {
         result.value = this.value - useMe;
         return result;
     }
+
     @Override
     public DoubleValue mul(Value myData) {
         DoubleValue result = new DoubleValue();
@@ -62,7 +63,7 @@ public class DoubleValue extends Value {
     public boolean eq(Value myData) {
         String toUse = myData.toString();
         double useMe = Double.parseDouble(toUse);
-        if (useMe == this.value){
+        if (useMe == this.value) {
             return true;
         }
         return false;
@@ -72,16 +73,17 @@ public class DoubleValue extends Value {
     public boolean lte(Value myData) {
         String toUse = myData.toString();
         double useMe = Double.parseDouble(toUse);
-        if (useMe >= this.value){
+        if (useMe >= this.value) {
             return true;
         }
         return false;
     }
+
     @Override
     public boolean gte(Value myData) {
         String toUse = myData.toString();
         double useMe = Double.parseDouble(toUse);
-        if (useMe <= this.value){
+        if (useMe <= this.value) {
             return true;
         }
         return false;
@@ -91,11 +93,12 @@ public class DoubleValue extends Value {
     public boolean neq(Value myData) {
         String toUse = myData.toString();
         double useMe = Double.parseDouble(toUse);
-        if (useMe != this.value){
+        if (useMe != this.value) {
             return true;
         }
         return false;
     }
+
     @Override
     public boolean equals(Object other) {
         return this.hashCode() == other.hashCode();
@@ -115,7 +118,9 @@ public class DoubleValue extends Value {
     }
 
     @Override
-    public Double getValue(){
+    public Double getValue() {
         return this.value;
     }
+
+
 }
