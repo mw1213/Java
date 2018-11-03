@@ -1,4 +1,4 @@
-package SparseDataFrame;
+package sparseDataFrame;
 
 import value.*;
 

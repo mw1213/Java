@@ -1,4 +1,4 @@
-package SparseDataFrame;
+package sparseDataFrame;
 
 import dataframe.*;
 import value.*;
@@ -46,7 +46,8 @@ public class Main2 {
         System.out.println(" -- SparseDataFrame z wierszy [1,22] -- \n");
         System.out.println(sdf.iloc(1, 22));
 
-        SparseDataFrame read = new SparseDataFrame("X:\\maciejw\\java_course\\zaj1\\src\\sparseDataFrame\\sparse.csv", new Class[]{DoubleValue.class, DoubleValue.class, DoubleValue.class}, true, new DoubleValue().create("0.0"));
+        SparseDataFrame read = new SparseDataFrame("/home/maciej/IdeaProjects/Java/zaj1/src/sparseDataFrame/sparse.csv", new Class[]{DoubleValue.class, DoubleValue.class, DoubleValue.class}, true, new DoubleValue().create("0.0"));
+        //SparseDataFrame read = new SparseDataFrame("X:\\maciejw\\java_course\\zaj1\\src\\sparseDataFrame\\sparse.csv", new Class[]{DoubleValue.class, DoubleValue.class, DoubleValue.class}, true, new DoubleValue().create("0.0"));
         //SparseDataFrame read = new SparseDataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\zaj1\\src\\SparseDataFrame\\sparse.csv", new Class[]{DoubleValue.class, DoubleValue.class, DoubleValue.class}, true, new DoubleValue().create("0.0"));
         System.out.println(read);
 

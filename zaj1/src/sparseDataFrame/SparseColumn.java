@@ -1,4 +1,4 @@
-package SparseDataFrame;
+package sparseDataFrame;
 
 import dataframe.*;
 import java.util.ArrayList;

@@ -296,9 +296,9 @@ public class DataFrame implements Groupby, Applyable {
             if (s.equals(colNames[i])) indexForColumn = i;
         }
 
-        for (Value val : columns[indexForColumn]){
-            result.put(val, )
-        }
+//        for (Value val : columns[indexForColumn]){
+
+  //      }
 
 
         for (int i = 0; i<width(); i++){
@@ -345,13 +345,12 @@ public class DataFrame implements Groupby, Applyable {
     }
 
     @Override
-    public DataFrame apply() {
-        for (int i=0; i<this.width(); i++){
-            for (Column col : columns){
-                col.changeMyList(new DoubleValue().create("2.0"));
-            }
-        }
+    public DataFrame apply(Applyable applyable) {
+        return null;
+    }
 
+    @Override
+    public DataFrame apply(DataFrame data) {
         return null;
     }
 }
