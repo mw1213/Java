@@ -9,7 +9,7 @@ public class Column {
 
     protected String name;
     protected Class<? extends Value> type;
-    private List<Value> list;
+    protected List<Value> list;
 
     public Column(String _name, Class<? extends Value> _type){
         this.name = _name;
@@ -76,8 +76,8 @@ public class Column {
     }
 
     /**
-     *
-     * @param element
+     * checking if element of list is having same type as column
+     * @param element given to compare types
      * @return
      */
     public boolean checkElement (Value element){
@@ -90,4 +90,7 @@ public class Column {
             list.get(i).add(el);
         }
     }
+
+
+
 }

@@ -1,14 +1,16 @@
 package dataframe;
 
+import value.DateTimeValue;
 import value.DoubleValue;
-import value.IntegerValue;
+import value.StringValue;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 public class Main {
     public static void main(String[] args) throws IOException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        DataFrame df = new DataFrame(new String[]{"col1","col2"}, new Class[]{IntegerValue.class, IntegerValue.class});
+
+/*        DataFrame df = new DataFrame(new String[]{"col1","col2"}, new Class[]{IntegerValue.class, IntegerValue.class});
         df.addRow(new IntegerValue(1), new IntegerValue(2));
         df.addRow(new IntegerValue(3), new IntegerValue(4));
         df.addRow(new IntegerValue(12), new IntegerValue(212));
@@ -32,11 +34,15 @@ public class Main {
         System.out.println(df.iloc(2));
         System.out.println(" -- DataFrame z wierszy [4,14] -- \n");
         System.out.println(df.iloc(4, 14));
-        DataFrame read = new DataFrame("/home/maciej/IdeaProjects/Java/zaj1/src/dataframe/data.csv", new Class[]{DoubleValue.class, DoubleValue.class, DoubleValue.class}, true);
+        //DataFrame read = new DataFrame("/home/maciej/IdeaProjects/Java/zaj1/src/dataframe/data.csv", new Class[]{DoubleValue.class, DoubleValue.class, DoubleValue.class}, true);
         //DataFrame read = new DataFrame("X:\\maciejw\\java_course\\zaj1\\src\\dataframe\\data.csv", new Class[]{DoubleValue.class, DoubleValue.class, DoubleValue.class}, true);
-        //DataFrame read = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\zaj1\\src\\dataframe\\data.csv", new Class[]{DoubleValue.class, DoubleValue.class, DoubleValue.class}, true);
-        System.out.println(read);
+        //DataFrame read = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\Java\\zaj1\\src\\dataframe\\data.csv", new Class[]{DoubleValue.class, DoubleValue.class, DoubleValue.class}, true);
+        //System.out.println(read);
 
         System.out.println(df.get("col1"));
+*/
+        DataFrame read2 = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\Java\\zaj1\\src\\groupby\\groupby.csv", new Class[]{StringValue.class, DateTimeValue.class, DoubleValue.class, DoubleValue.class}, true);
+        System.out.println(read2);
+
     }
 }

@@ -4,12 +4,15 @@ import java.io.*;
 import java.util.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import groupby.*;
 import value.*;
 
 
 
-public class DataFrame implements Groupby, Applyable {
+public class DataFrame implements  Applyable {
 
     public List<Column> columns;
 
@@ -163,6 +166,11 @@ public class DataFrame implements Groupby, Applyable {
 
     }
 
+    public boolean addRow(List<Value> values){
+        IntStream.range(0, columns.size()).forEach(i -> columns.get(i).addElement(values.get(i)));
+        return true;
+    }
+
     /**
      *
      * @param cols names of columns to the new dataframe
@@ -212,6 +220,16 @@ public class DataFrame implements Groupby, Applyable {
             output.columns.add(column);
         }
 
+        return output;
+    }
+
+    public Value[] ilocValue (int j){
+        Value[] output;
+        DataFrame helpMe = this.iloc(j);
+        output = new Value[helpMe.width()];
+        for (int i = 0; i<helpMe.width(); i++){
+            output[i] = helpMe.columns.get(i).elAtIndex(0);
+        }
         return output;
     }
 
@@ -274,71 +292,154 @@ public class DataFrame implements Groupby, Applyable {
     }
 
 
+
+    public class DataFrameGroupBy implements Groupby{
+        private HashMap<List<Value>, DataFrame> map;
+        private List<String> colNames;
+
+        public DataFrameGroupBy(HashMap<List<Value>, DataFrame> _map, String[] _colNames){
+            this.map=_map;
+            this.colNames= Arrays.asList(_colNames);
+        }
+
+        @Override
+        public DataFrame max() {
+            DataFrame result = new DataFrame(getColumnsNames(), getColumnsTypes());
+            for (var values: map.keySet()){
+                List<Value> toAdd = new ArrayList<>(values);
+                DataFrame dataFrameHelp = map.get(values);
+
+                for (var column: dataFrameHelp.columns){
+                    if(column.list.isEmpty()) toAdd.add(null);
+                    else {
+                        Value max = column.list.get(0);
+                        for (var value: column.list){
+                            if(value.gte(max)) max=value;
+                        }
+                        toAdd.add(max);
+                    }
+                }
+                result.addRow(toAdd);
+            }
+            return result;
+        }
+
+        @Override
+        public DataFrame min() {
+            DataFrame result = new DataFrame(getColumnsNames(), getColumnsTypes());
+            for (var values: map.keySet()){
+                List<Value> toAdd = new ArrayList<>(values);
+                DataFrame dataFrameHelp = map.get(values);
+
+                for (var column: dataFrameHelp.columns){
+                    if(column.list.isEmpty()) toAdd.add(null);
+                    else {
+                        Value min = column.list.get(0);
+                        for (var value: column.list){
+                            if(value.lte(min)) min=value;
+                        }
+                        toAdd.add(min);
+                    }
+                }
+                result.addRow(toAdd);
+            }
+            return result;
+        }
+
+        @Override
+        public DataFrame mean() {
+            DataFrame result = new DataFrame(getColumnsNames(), getColumnsTypes());
+            for (var values : map.keySet()) {
+                List<Value> toAdd = new ArrayList<>(values);
+                DataFrame dataFrameHelp = map.get(values);
+
+                for (var column : dataFrameHelp.columns) {
+                    if (column.list.isEmpty()) toAdd.add(null);
+                    else {
+                        Value sum = column.list.get(0);
+                        Value zero = column.list.get(0);
+                        for (var value: column.list){
+                            sum = sum.add(value);
+                        }
+                        sum = sum.sub(zero);
+                        Value mean=sum.div(new IntegerValue(column.list.size()));
+                        toAdd.add(mean);
+                    }
+                }
+                result.addRow(toAdd);
+            }
+            return result;
+        }
+
+
+        @Override
+        public DataFrame sum() {
+            DataFrame result = new DataFrame(getColumnsNames(), getColumnsTypes());
+            for (var values: map.keySet()){
+                List<Value> toAdd = new ArrayList<>(values);
+                DataFrame dataFrameHelp = map.get(values);
+
+                for (var column: dataFrameHelp.columns){
+                    if(column.list.isEmpty()) toAdd.add(null);
+                    else {
+                        Value sum = column.list.get(0);
+                        Value zero = column.list.get(0);
+                        for (var value: column.list){
+                            sum = sum.add(value);
+                        }
+                        toAdd.add(sum.sub(zero));
+                    }
+                }
+                result.addRow(toAdd);
+            }
+            return result;
+        }
+
+
+        @Override
+        public DataFrame std() {
+            return null;
+        }
+
+        @Override
+        public DataFrame var() {
+            return null;
+        }
+
+        @Override
+        public DataFrame apply(Applyable applyable) {
+            return null;
+        }
+    }
+
+    public Column getColumn(String name){
+        return columns.stream().filter(c -> c.getName().equals(name)).findFirst().orElse(null);
+    }
+
+    public Value[] getRow(int index){
+        return columns.stream().map(column -> column.elAtIndex(index)).toArray(Value[]::new);
+    }
     /**
      * implementin Groupby interface methods
-     * @param s name of column to sort for
-     * @return
+     * @param groupBy name of column to sort for
+     * @return inner class having smaller data frames which are sorted by the column given in @param s
      */
-
-    public HashMap<Value, DataFrame> grupby(String s) {
-        HashMap<Value, DataFrame> result = new HashMap<>();
-        String[] colNames = getColumnsNames();
-        int indexForColumn = 0;
-        for (int i=0; i<colNames.length; i++){
-            if (s.equals(colNames[i])) indexForColumn = i;
+    public DataFrameGroupBy grupby(String[] groupBy) {
+        HashMap<List<Value>, DataFrame> forResult = new HashMap<>(groupBy.length);
+        List<Column> columns = Arrays.stream(groupBy).map(this::getColumn).collect(Collectors.toList());
+        for (int i =0; i< size(); i++){
+            List<Value> values = new ArrayList<>(columns.size());
+            for (var column: columns){
+                values.add(column.elAtIndex(i));
+            }
+            if (!forResult.containsKey(values)){
+                forResult.put(values, iloc(i));
+            }
+            else {
+                forResult.get(values).addRow(getRow(i));
+            }
         }
-
-//        for (Value val : columns[indexForColumn]){
-
-  //      }
-
-
-        for (int i = 0; i<width(); i++){
-
-        }
-
-        return result;
-    }
-
-    public DataFrame grupby(String[] colNames){
-        return null;
-    }
-
-    @Override
-    public DataFrame max() {
-
-
-        return null;
-    }
-
-    @Override
-    public DataFrame min() {
-        return null;
-    }
-
-    @Override
-    public DataFrame mean() {
-        return null;
-    }
-
-    @Override
-    public DataFrame std() {
-        return null;
-    }
-
-    @Override
-    public DataFrame sum() {
-        return null;
-    }
-
-    @Override
-    public DataFrame var() {
-        return null;
-    }
-
-    @Override
-    public DataFrame apply(Applyable applyable) {
-        return null;
+        return new DataFrameGroupBy(forResult, groupBy);
     }
 
     @Override
