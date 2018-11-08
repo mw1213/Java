@@ -2,6 +2,7 @@ package dataframe;
 
 import value.DateTimeValue;
 import value.DoubleValue;
+import value.FloatValue;
 import value.StringValue;
 
 import java.io.IOException;
@@ -41,8 +42,17 @@ public class Main {
 
         System.out.println(df.get("col1"));
 */
-        DataFrame read2 = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\Java\\zaj1\\src\\groupby\\groupby.csv", new Class[]{StringValue.class, DateTimeValue.class, DoubleValue.class, DoubleValue.class}, true);
-        System.out.println(read2);
+        DataFrame read2 = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\Java\\zaj1\\src\\groupby\\groupby.csv", new Class[]{StringValue.class, DateTimeValue.class, FloatValue.class, FloatValue.class}, true);
+        DataFrame read3 = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\Java\\zaj1\\src\\groupby\\groubymulti.csv", new Class[]{StringValue.class, DateTimeValue.class, DoubleValue.class, DoubleValue.class}, true);
+        //System.out.println(read2.grupby(new String[]{"id"}).max());
+        //System.out.println(read2.grupby(new String[]{"id"}).min());
+        //System.out.println(read2.grupby(new String[]{"id"}).sum());
+        System.out.println(read2.grupby(new String[]{"id"}).mean());
+        System.out.println(read2.grupby(new String[]{"id"}).var());
+        System.out.println(read2.grupby(new String[]{"id"}).std());
+
+        //System.out.println(read3.grupby(new String[]{"id", "date"}).max());
+        //System.out.println(read3.grupby(new String[]{"id", "date"}).sum());
 
     }
 }

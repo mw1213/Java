@@ -5,7 +5,6 @@ import java.util.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import groupby.*;
 import value.*;
@@ -87,9 +86,9 @@ public class DataFrame implements  Applyable {
         for (int i=0;i<types.length;i++){
             constructors.add(types[i].getConstructor(String.class));
         }
-        //while ((strLine = br.readLine()) != null){
-        for (int b=0; b<50;b++) {
-            strLine = br.readLine();
+        while ((strLine = br.readLine()) != null){
+        //for (int b=0; b<50;b++) {
+            //strLine = br.readLine();
             String[] str = strLine.split(",");
             for (int i = 0; i<str.length; i++){
                 values[i] = constructors.get(i).newInstance(str[i]);
@@ -166,8 +165,26 @@ public class DataFrame implements  Applyable {
 
     }
 
+    /**
+     * List<value> values can be bigger than columns.size() so I have to delete them from the list
+     * @param values
+     * @return
+     */
     public boolean addRow(List<Value> values){
-        IntStream.range(0, columns.size()).forEach(i -> columns.get(i).addElement(values.get(i)));
+        List<Value> addingValues = new ArrayList<>(values);
+        List<Integer> indexesToRemove = new ArrayList<>();
+        List<Class<? extends Value>> classList = new ArrayList<>(List.of(getColumnsTypes()));
+        for (int i=0; i<values.size(); i++){
+            Class <? extends Value> myClass = values.get(i).getClass();
+            if(!classList.contains(myClass)) indexesToRemove.add(i);
+        }
+        for (int i = indexesToRemove.size()-1; i>=0; i--){
+            addingValues.remove((int)indexesToRemove.get(i));
+        }
+
+        for (int i =0; i<columns.size(); i++){
+            columns.get(i).addElement(addingValues.get(i));
+        }
         return true;
     }
 
@@ -310,15 +327,18 @@ public class DataFrame implements  Applyable {
                 DataFrame dataFrameHelp = map.get(values);
 
                 for (var column: dataFrameHelp.columns){
-                    if(column.list.isEmpty()) toAdd.add(null);
-                    else {
-                        Value max = column.list.get(0);
-                        for (var value: column.list){
-                            if(value.gte(max)) max=value;
-                        }
-                        toAdd.add(max);
+                    if(colNames.contains(column.getName())){
+                        continue;
                     }
+
+                    Value max = column.list.get(0);
+                    for (var value: column.list){
+                        if(value.gte(max)) max=value;
+                    }
+                    toAdd.add(max);
+
                 }
+
                 result.addRow(toAdd);
             }
             return result;
@@ -332,14 +352,14 @@ public class DataFrame implements  Applyable {
                 DataFrame dataFrameHelp = map.get(values);
 
                 for (var column: dataFrameHelp.columns){
-                    if(column.list.isEmpty()) toAdd.add(null);
-                    else {
-                        Value min = column.list.get(0);
-                        for (var value: column.list){
-                            if(value.lte(min)) min=value;
-                        }
-                        toAdd.add(min);
+                    if(colNames.contains(column.getName())){
+                        continue;
                     }
+                    Value min = column.list.get(0);
+                    for (var value: column.list){
+                        if(value.lte(min)) min=value;
+                    }
+                    toAdd.add(min);
                 }
                 result.addRow(toAdd);
             }
@@ -348,23 +368,37 @@ public class DataFrame implements  Applyable {
 
         @Override
         public DataFrame mean() {
-            DataFrame result = new DataFrame(getColumnsNames(), getColumnsTypes());
+            List<Class<? extends Value>> classList = new ArrayList<>(List.of(getColumnsTypes()));
+            ArrayList<String> nameList = new ArrayList<>(List.of(getColumnsNames()));
+            List<Integer> indexesToRemove = new ArrayList<>();
+            for (int i = 0; i<classList.size(); i++){
+                if ((classList.get(i).equals(StringValue.class) || classList.get(i).equals(DateTimeValue.class)) && !colNames.contains(nameList.get(i))){
+                    indexesToRemove.add(i);
+                }
+            }
+            for (int i = indexesToRemove.size()-1; i>=0; i--){
+                nameList.remove((int)indexesToRemove.get(i));
+                classList.remove((int)indexesToRemove.get(i));
+            }
+            String[] columnNames = nameList.toArray(String[]::new);
+            Class[] types = classList.toArray(Class[]::new);
+            DataFrame result = new DataFrame(columnNames, types);
             for (var values : map.keySet()) {
                 List<Value> toAdd = new ArrayList<>(values);
                 DataFrame dataFrameHelp = map.get(values);
 
                 for (var column : dataFrameHelp.columns) {
-                    if (column.list.isEmpty()) toAdd.add(null);
-                    else {
-                        Value sum = column.list.get(0);
-                        Value zero = column.list.get(0);
-                        for (var value: column.list){
-                            sum = sum.add(value);
-                        }
-                        sum = sum.sub(zero);
-                        Value mean=sum.div(new IntegerValue(column.list.size()));
-                        toAdd.add(mean);
+                    if(colNames.contains(column.getName())){
+                        continue;
                     }
+                    Value sum = column.list.get(0);
+                    Value zero = column.list.get(0);
+                    for (var value : column.list) {
+                        sum = sum.add(value);
+                    }
+                    sum = sum.sub(zero);
+                    Value mean = sum.div(new IntegerValue(column.list.size()));
+                    toAdd.add(mean);
                 }
                 result.addRow(toAdd);
             }
@@ -374,17 +408,33 @@ public class DataFrame implements  Applyable {
 
         @Override
         public DataFrame sum() {
-            DataFrame result = new DataFrame(getColumnsNames(), getColumnsTypes());
+            List<Class<? extends Value>> classList = new ArrayList<>(List.of(getColumnsTypes()));
+            ArrayList<String> nameList = new ArrayList<>(List.of(getColumnsNames()));
+            List<Integer> indexesToRemove = new ArrayList<>();
+            for (int i = 0; i<classList.size(); i++){
+                if ((classList.get(i).equals(StringValue.class) || classList.get(i).equals(DateTimeValue.class)) && !colNames.contains(nameList.get(i))){
+                    indexesToRemove.add(i);
+                }
+            }
+            for (int i = indexesToRemove.size()-1; i>=0; i--){
+                nameList.remove((int)indexesToRemove.get(i));
+                classList.remove((int)indexesToRemove.get(i));
+            }
+            String[] columnNames = nameList.toArray(String[]::new);
+            Class[] types = classList.toArray(Class[]::new);
+            DataFrame result = new DataFrame(columnNames, types);
             for (var values: map.keySet()){
                 List<Value> toAdd = new ArrayList<>(values);
                 DataFrame dataFrameHelp = map.get(values);
 
                 for (var column: dataFrameHelp.columns){
-                    if(column.list.isEmpty()) toAdd.add(null);
-                    else {
+                    if(colNames.contains(column.getName())){
+                        continue;
+                    }
+                    if(!column.getClass().equals(DateTimeValue.class)) {
                         Value sum = column.list.get(0);
                         Value zero = column.list.get(0);
-                        for (var value: column.list){
+                        for (var value : column.list) {
                             sum = sum.add(value);
                         }
                         toAdd.add(sum.sub(zero));
@@ -398,12 +448,148 @@ public class DataFrame implements  Applyable {
 
         @Override
         public DataFrame std() {
-            return null;
+            List<Class<? extends Value>> classList = new ArrayList<>(List.of(getColumnsTypes()));
+            ArrayList<String> nameList = new ArrayList<>(List.of(getColumnsNames()));
+            List<Integer> indexesToRemove = new ArrayList<>();
+            for (int i = 0; i<classList.size(); i++){
+                if ((classList.get(i).equals(StringValue.class) || classList.get(i).equals(DateTimeValue.class)) && !colNames.contains(nameList.get(i))){
+                    indexesToRemove.add(i);
+                }
+            }
+            for (int i = indexesToRemove.size()-1; i>=0; i--){
+                nameList.remove((int)indexesToRemove.get(i));
+                classList.remove((int)indexesToRemove.get(i));
+            }
+            String[] columnNames = nameList.toArray(String[]::new);
+            Class[] types = classList.toArray(Class[]::new);
+            DataFrame result = new DataFrame(columnNames, types);
+            for (var values : map.keySet()) {
+                List<Value> toAdd = new ArrayList<>(values);
+                DataFrame dataFrameHelp = map.get(values);
+
+                for (var column : dataFrameHelp.columns) {
+                    if(colNames.contains(column.getName())){
+                        continue;
+                    }
+                    Value sum = column.list.get(0);
+                    Value zero = column.list.get(0);
+                    for (var value : column.list) {
+                        sum = sum.add(value);
+                    }
+                    sum = sum.sub(zero);
+                    Value mean = sum.div(new IntegerValue(column.list.size()));
+
+                    if(column.getClass().equals(IntegerValue.class)) {
+                        IntegerValue output = new IntegerValue(0);
+                        IntegerValue powVal = new IntegerValue(2);
+                        for (var value: column.list) {
+                            output = output.add(value.sub(mean).pow(powVal));
+                        }
+                        output = output.div((new IntegerValue(column.list.size())));
+                        int helpOutput = (int) Math.sqrt(Double.parseDouble(output.toString()));
+                        IntegerValue std = new IntegerValue(helpOutput);
+                        toAdd.add(std);
+                    }
+                    else if(column.getClass().equals(FloatValue.class)) {
+                        FloatValue output = new FloatValue((float)0.0);
+                        FloatValue powVal = new FloatValue((float)2.0);
+                        for (var value: column.list) {
+                            output = output.add(value.sub(mean).pow(powVal));
+                        }
+                        output = output.div((new IntegerValue(column.list.size())));
+                        float helpOutput = (float) Math.sqrt(Double.parseDouble(output.toString()));
+                        FloatValue std = new FloatValue(helpOutput);
+                        toAdd.add(std);
+                    }
+                    else if(column.getClass().equals(DoubleValue.class)) {
+                        DoubleValue output = new DoubleValue(0.0);
+                        DoubleValue powVal = new DoubleValue(2.0);
+                        for (var value: column.list) {
+                            output = output.add(value.sub(mean).pow(powVal));
+                        }
+                        output = output.div((new IntegerValue(column.list.size())));
+                        double helpOutput = Math.sqrt(Double.parseDouble(output.toString()));
+                        DoubleValue std = new DoubleValue(helpOutput);
+                        toAdd.add(std);
+                    }
+                    else  {
+                        Value output = column.elAtIndex(0);
+                        toAdd.add(output);
+                    }
+                }
+                result.addRow(toAdd);
+            }
+            return result;
         }
 
         @Override
         public DataFrame var() {
-            return null;
+            List<Class<? extends Value>> classList = new ArrayList<>(List.of(getColumnsTypes()));
+            ArrayList<String> nameList = new ArrayList<>(List.of(getColumnsNames()));
+            List<Integer> indexesToRemove = new ArrayList<>();
+            for (int i = 0; i<classList.size(); i++){
+                if ((classList.get(i).equals(StringValue.class) || classList.get(i).equals(DateTimeValue.class)) && !colNames.contains(nameList.get(i))){
+                    indexesToRemove.add(i);
+                }
+            }
+            for (int i = indexesToRemove.size()-1; i>=0; i--){
+                nameList.remove((int)indexesToRemove.get(i));
+                classList.remove((int)indexesToRemove.get(i));
+            }
+            String[] columnNames = nameList.toArray(String[]::new);
+            Class[] types = classList.toArray(Class[]::new);
+            DataFrame result = new DataFrame(columnNames, types);
+            for (var values : map.keySet()) {
+                List<Value> toAdd = new ArrayList<>(values);
+                DataFrame dataFrameHelp = map.get(values);
+
+                for (var column : dataFrameHelp.columns) {
+                    if(colNames.contains(column.getName())){
+                        continue;
+                    }
+                    Value sum = column.list.get(0);
+                    Value zero = column.list.get(0);
+                    for (var value : column.list) {
+                        sum = sum.add(value);
+                    }
+                    sum = sum.sub(zero);
+                    Value mean = sum.div(new IntegerValue(column.list.size()));
+
+                    if(column.getClass().equals(IntegerValue.class)) {
+                        IntegerValue output = new IntegerValue(0);
+                        IntegerValue powVal = new IntegerValue(2);
+                        for (var value: column.list) {
+                            output = output.add(value.sub(mean).pow(powVal));
+                        }
+                        output = output.div((new IntegerValue(column.list.size())));
+                        toAdd.add(output);
+                    }
+                    else if(column.getClass().equals(FloatValue.class)) {
+                        FloatValue output = new FloatValue((float)0.0);
+                        FloatValue powVal = new FloatValue((float)2.0);
+                        for (var value: column.list) {
+                            output = output.add(value.sub(mean).pow(powVal));
+                        }
+                        output = output.div((new IntegerValue(column.list.size())));
+                        toAdd.add(output);
+                    }
+                    else if(column.getClass().equals(DoubleValue.class)) {
+                        DoubleValue output = new DoubleValue(0.0);
+                        DoubleValue powVal = new DoubleValue(2.0);
+                        for (var value: column.list) {
+                            output = output.add(value.sub(mean).pow(powVal));
+                        }
+                        output = output.div((new IntegerValue(column.list.size())));
+                        toAdd.add(output);
+                    }
+                    else  {
+                        Value output = column.elAtIndex(0);
+                        toAdd.add(output);
+                    }
+                }
+                result.addRow(toAdd);
+            }
+            return result;
         }
 
         @Override

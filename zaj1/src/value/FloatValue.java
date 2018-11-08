@@ -9,8 +9,12 @@ public class FloatValue extends Value {
         value = (float) 0.0;
     }
 
-    public FloatValue(String s){
+    public FloatValue(String  s){
         value = Float.parseFloat(s);
+    }
+
+    public FloatValue(float  s){
+        value = s;
     }
 
     @Override

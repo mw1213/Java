@@ -13,6 +13,10 @@ public class DoubleValue extends Value {
         value = Double.parseDouble(s);
     }
 
+    public DoubleValue(double v) {
+        this.value=v;
+    }
+
     @Override
     public String toString() {
         return Double.toString(value);

@@ -11,6 +11,7 @@ public class IntegerValue extends Value {
 
     public IntegerValue(String s) {this.value = Integer.parseInt(s);}
 
+
     public IntegerValue() {
         this.value = 0;
     }
