@@ -479,7 +479,7 @@ public class DataFrame implements  Applyable {
                     sum = sum.sub(zero);
                     Value mean = sum.div(new IntegerValue(column.list.size()));
 
-                    if(column.getClass().equals(IntegerValue.class)) {
+                    if(column.getType().equals(IntegerValue.class)) {
                         IntegerValue output = new IntegerValue(0);
                         IntegerValue powVal = new IntegerValue(2);
                         for (var value: column.list) {
@@ -490,7 +490,7 @@ public class DataFrame implements  Applyable {
                         IntegerValue std = new IntegerValue(helpOutput);
                         toAdd.add(std);
                     }
-                    else if(column.getClass().equals(FloatValue.class)) {
+                    else if(column.getType().equals(FloatValue.class)) {
                         FloatValue output = new FloatValue((float)0.0);
                         FloatValue powVal = new FloatValue((float)2.0);
                         for (var value: column.list) {
@@ -501,7 +501,7 @@ public class DataFrame implements  Applyable {
                         FloatValue std = new FloatValue(helpOutput);
                         toAdd.add(std);
                     }
-                    else if(column.getClass().equals(DoubleValue.class)) {
+                    else if(column.getType().equals(DoubleValue.class)) {
                         DoubleValue output = new DoubleValue(0.0);
                         DoubleValue powVal = new DoubleValue(2.0);
                         for (var value: column.list) {
@@ -555,7 +555,7 @@ public class DataFrame implements  Applyable {
                     sum = sum.sub(zero);
                     Value mean = sum.div(new IntegerValue(column.list.size()));
 
-                    if(column.getClass().equals(IntegerValue.class)) {
+                    if(column.getType().equals(IntegerValue.class)) {
                         IntegerValue output = new IntegerValue(0);
                         IntegerValue powVal = new IntegerValue(2);
                         for (var value: column.list) {
@@ -564,7 +564,7 @@ public class DataFrame implements  Applyable {
                         output = output.div((new IntegerValue(column.list.size())));
                         toAdd.add(output);
                     }
-                    else if(column.getClass().equals(FloatValue.class)) {
+                    else if(column.getType().equals(FloatValue.class)) {
                         FloatValue output = new FloatValue((float)0.0);
                         FloatValue powVal = new FloatValue((float)2.0);
                         for (var value: column.list) {
@@ -573,7 +573,7 @@ public class DataFrame implements  Applyable {
                         output = output.div((new IntegerValue(column.list.size())));
                         toAdd.add(output);
                     }
-                    else if(column.getClass().equals(DoubleValue.class)) {
+                    else if(column.getType().equals(DoubleValue.class)) {
                         DoubleValue output = new DoubleValue(0.0);
                         DoubleValue powVal = new DoubleValue(2.0);
                         for (var value: column.list) {
