@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 public class Main {
-    public static void main(String[] args) throws IOException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
+    public static void main(String[] args) {
 
 /*        DataFrame df = new DataFrame(new String[]{"col1","col2"}, new Class[]{IntegerValue.class, IntegerValue.class});
         df.addRow(new IntegerValue(1), new IntegerValue(2));
@@ -42,17 +42,29 @@ public class Main {
 
         System.out.println(df.get("col1"));
 */
-        DataFrame read2 = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\Java\\zaj1\\src\\groupby\\groupby.csv", new Class[]{StringValue.class, DateTimeValue.class, FloatValue.class, FloatValue.class}, true);
-        DataFrame read3 = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\Java\\zaj1\\src\\groupby\\groubymulti.csv", new Class[]{StringValue.class, DateTimeValue.class, DoubleValue.class, DoubleValue.class}, true);
-        //System.out.println(read2.grupby(new String[]{"id"}).max());
-        //System.out.println(read2.grupby(new String[]{"id"}).min());
-        //System.out.println(read2.grupby(new String[]{"id"}).sum());
-        System.out.println(read2.grupby(new String[]{"id"}).mean());
-        System.out.println(read2.grupby(new String[]{"id"}).var());
-        System.out.println(read2.grupby(new String[]{"id"}).std());
+        try {
+            //DataFrame read2 = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\Java\\zaj1\\src\\groupby\\groupby.csv", new Class[]{StringValue.class, DateTimeValue.class, FloatValue.class, FloatValue.class}, true);
+            //DataFrame read3 = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\Java\\zaj1\\src\\groupby\\groubymulti.csv", new Class[]{StringValue.class, DateTimeValue.class, DoubleValue.class, DoubleValue.class}, true);
+            DataFrame read2 = new DataFrame("/home/maciej/IdeaProjects/Java/zaj1/src/groupby/groupby.csv", new Class[]{StringValue.class, DateTimeValue.class, FloatValue.class, FloatValue.class}, true);
+            //DataFrame read3 = new DataFrame("/home/maciej/IdeaProjects/Java/zaj1/src/groupby/groubymulti.csv", new Class[]{StringValue.class, DateTimeValue.class, DoubleValue.class, DoubleValue.class}, true);
 
-        //System.out.println(read3.grupby(new String[]{"id", "date"}).max());
-        //System.out.println(read3.grupby(new String[]{"id", "date"}).sum());
+            //System.out.println(read2.grupby(new String[]{"id"}).max());
+            System.out.println(read2.grupby(new String[]{"id"}).min());
+            //System.out.println(read2.grupby(new String[]{"id"}).sum());
+            //System.out.println(read2.grupby(new String[]{"id"}).mean());
+            //System.out.println(read2.grupby(new String[]{"id"}).var());
+            //System.out.println(read2.grupby(new String[]{"id"}).std());
 
+            //System.out.println(read3.grupby(new String[]{"id", "date"}).max());
+            //System.out.println(read3.grupby(new String[]{"id", "date"}).min());
+            //System.out.println(read3.grupby(new String[]{"id", "date"}).sum());
+            //System.out.println(read3.grupby(new String[]{"id", "date"}).mean());
+            //System.out.println(read3.grupby(new String[]{"id", "date"}).var());
+            //System.out.println(read3.grupby(new String[]{"id", "date"}).std());
+
+        }
+        catch (IOException e){
+            System.out.println(e);
+        }
     }
 }

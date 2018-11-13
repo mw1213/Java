@@ -47,56 +47,72 @@ public class DataFrame implements  Applyable {
      * @throws IOException
      */
 
-    public DataFrame(String address, Class<? extends Value>[] types, boolean header) throws IOException, IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException {
+    public DataFrame(String address, Class<? extends Value>[] types, boolean header) throws IOException {
 
         columns = new ArrayList<>();
         FileInputStream fstream;
         BufferedReader br;
 
-        fstream = new FileInputStream(address);
+        try{
+            fstream = new FileInputStream(address);
 
-        if (fstream == null)
-            throw new IOException("File not found!");
-        else
+
             br = new BufferedReader(new InputStreamReader(fstream));
 
-        String strLine=br.readLine();
-        String[] separated=strLine.split(",");
-        String[] names= new String[types.length];
-        if (!header){
-            Scanner odczyt = new Scanner(System.in);
-            for (int l=0;l<types.length;l++){
-                System.out.print("Podaj nazwę kolumny: ");
-                names[l] = odczyt.nextLine();
+            String strLine=br.readLine();
+            String[] separated=strLine.split(",");
+            String[] names= new String[types.length];
+            if (!header){
+                Scanner odczyt = new Scanner(System.in);
+                for (int l=0;l<types.length;l++){
+                    System.out.print("Podaj nazwę kolumny: ");
+                    names[l] = odczyt.nextLine();
+                }
             }
-        }
-        if (header){
-            for (int m=0;m<types.length;m++){
-                names[m]=separated[m];
+            if (header){
+                for (int m=0;m<types.length;m++){
+                    names[m]=separated[m];
+                }
             }
-        }
-        for (int i = 0; i < types.length; i++) {
-            if((separated.length <= i)) {
-                break;
+            for (int i = 0; i < types.length; i++) {
+                if((separated.length <= i)) {
+                    break;
+                }
+                columns.add(new Column(names[i], types[i]));
             }
-            columns.add(new Column(names[i], types[i]));
-        }
-        Value[] values= new Value[columns.size()];
-        List<Constructor<? extends Value>> constructors = new ArrayList<>(types.length);
-        for (int i=0;i<types.length;i++){
-            constructors.add(types[i].getConstructor(String.class));
-        }
-        while ((strLine = br.readLine()) != null){
-        //for (int b=0; b<50;b++) {
-            //strLine = br.readLine();
-            String[] str = strLine.split(",");
-            for (int i = 0; i<str.length; i++){
-                values[i] = constructors.get(i).newInstance(str[i]);
+            Value[] values= new Value[columns.size()];
+            List<Constructor<? extends Value>> constructors = new ArrayList<>(types.length);
+            for (int i=0;i<types.length;i++){
+                constructors.add(types[i].getConstructor(String.class));
             }
-            addRow(values);
+            while ((strLine = br.readLine()) != null){
+                //for (int b=0; b<50;b++) {
+                //strLine = br.readLine();
+                String[] str = strLine.split(",");
+                for (int i = 0; i<str.length; i++){
+                    values[i] = constructors.get(i).newInstance(str[i]);
+                }
+                addRow(values);
+
+            }
+            br.close();
 
         }
-        br.close();
+        catch (FileNotFoundException s){
+            throw new IOException("Flie not found!");
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+            throw new IOException("Method in reading file wasn't file");
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+            throw new IOException("newInstance was't able to perform");
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            throw new IOException("Illegal access to variables");
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+            throw new IOException("Constructor wasn't able to perform");
+        }
 
     }
 
@@ -168,24 +184,29 @@ public class DataFrame implements  Applyable {
     /**
      * List<value> values can be bigger than columns.size() so I have to delete them from the list
      * @param values
-     * @return
+     * @return true if adding is successful
      */
-    public boolean addRow(List<Value> values){
-        List<Value> addingValues = new ArrayList<>(values);
-        List<Integer> indexesToRemove = new ArrayList<>();
-        List<Class<? extends Value>> classList = new ArrayList<>(List.of(getColumnsTypes()));
-        for (int i=0; i<values.size(); i++){
-            Class <? extends Value> myClass = values.get(i).getClass();
-            if(!classList.contains(myClass)) indexesToRemove.add(i);
-        }
-        for (int i = indexesToRemove.size()-1; i>=0; i--){
-            addingValues.remove((int)indexesToRemove.get(i));
-        }
+    public boolean addRow(List<Value> values) throws IOException{
+        try {
+            List<Value> addingValues = new ArrayList<>(values);
+            List<Integer> indexesToRemove = new ArrayList<>();
+            List<Class<? extends Value>> classList = new ArrayList<>(List.of(getColumnsTypes()));
+            for (int i = 0; i < values.size(); i++) {
+                Class<? extends Value> myClass = values.get(i).getClass();
+                if (!classList.contains(myClass)) indexesToRemove.add(i);
+            }
+            for (int i = indexesToRemove.size() - 1; i >= 0; i--) {
+                addingValues.remove((int) indexesToRemove.get(i));
+            }
 
-        for (int i =0; i<columns.size(); i++){
-            columns.get(i).addElement(addingValues.get(i));
+            for (int i = 0; i < columns.size(); i++) {
+                columns.get(i).addElement(addingValues.get(i));
+            }
+            return true;
         }
-        return true;
+        catch (IndexOutOfBoundsException e){
+            throw new IOException("Adding to many elements to the row!");
+        }
     }
 
     /**
@@ -240,15 +261,6 @@ public class DataFrame implements  Applyable {
         return output;
     }
 
-    public Value[] ilocValue (int j){
-        Value[] output;
-        DataFrame helpMe = this.iloc(j);
-        output = new Value[helpMe.width()];
-        for (int i = 0; i<helpMe.width(); i++){
-            output[i] = helpMe.columns.get(i).elAtIndex(0);
-        }
-        return output;
-    }
 
     /**
      *
@@ -309,16 +321,29 @@ public class DataFrame implements  Applyable {
     }
 
 
-
+    /**
+     * inner class making hash map of Dataframes where keys are values for which original DataFrame is sorted eg. "id"
+     * and values are smaller dataframes cut from original
+     */
     public class DataFrameGroupBy implements Groupby{
+
         private HashMap<List<Value>, DataFrame> map;
         private List<String> colNames;
 
+        /**
+         * constructor for inner class
+         * @param _map gives map to store in this.map
+         * @param _colNames gives colNames to store in this.colNames
+         */
         public DataFrameGroupBy(HashMap<List<Value>, DataFrame> _map, String[] _colNames){
             this.map=_map;
             this.colNames= Arrays.asList(_colNames);
         }
 
+        /**
+         * max is calculeted by comparing each element of each column with max for that column
+         *  @return new dataframe which has only one column with max values for each value which original dataframe is sorted by eg. "id"
+         */
         @Override
         public DataFrame max() {
             DataFrame result = new DataFrame(getColumnsNames(), getColumnsTypes());
@@ -338,12 +363,20 @@ public class DataFrame implements  Applyable {
                     toAdd.add(max);
 
                 }
-
-                result.addRow(toAdd);
+                try{
+                    result.addRow(toAdd);
+                }
+                catch (IOException e){
+                    System.out.println("Adding elements to DataFrame unsuccessful");
+                }
             }
             return result;
         }
 
+        /**
+         * min is calculeted by comparing each element of each column with min for that column
+         * @return new dataframe which has only one column with min values for each value which original dataframe is sorted by eg. "id"
+         */
         @Override
         public DataFrame min() {
             DataFrame result = new DataFrame(getColumnsNames(), getColumnsTypes());
@@ -361,11 +394,21 @@ public class DataFrame implements  Applyable {
                     }
                     toAdd.add(min);
                 }
-                result.addRow(toAdd);
+                try{
+                    result.addRow(toAdd);
+                }
+                catch (IOException e){
+                    System.out.println(e);
+                    System.out.println("Adding elements to DataFrame unsuccessful");
+                }
             }
             return result;
         }
 
+        /**
+         * mean is calculeted by dividing sum by number of elements
+         * @return new dataframe which has only one column with mean values for each value which original dataframe is sorted by eg. "id"
+         */
         @Override
         public DataFrame mean() {
             List<Class<? extends Value>> classList = new ArrayList<>(List.of(getColumnsTypes()));
@@ -400,12 +443,19 @@ public class DataFrame implements  Applyable {
                     Value mean = sum.div(new IntegerValue(column.list.size()));
                     toAdd.add(mean);
                 }
-                result.addRow(toAdd);
-            }
+                try{
+                    result.addRow(toAdd);
+                }
+                catch (IOException e){
+                    System.out.println("Adding elements to DataFrame unsuccessful");
+                }            }
             return result;
         }
 
-
+        /**
+         * sums every element in each column
+         * @return new dataframe which has only one column with sum values for each value which original dataframe is sorted by eg. "id"
+         */
         @Override
         public DataFrame sum() {
             List<Class<? extends Value>> classList = new ArrayList<>(List.of(getColumnsTypes()));
@@ -440,12 +490,19 @@ public class DataFrame implements  Applyable {
                         toAdd.add(sum.sub(zero));
                     }
                 }
-                result.addRow(toAdd);
-            }
+                try{
+                    result.addRow(toAdd);
+                }
+                catch (IOException e){
+                    System.out.println("Adding elements to DataFrame unsuccessful");
+                }            }
             return result;
         }
 
-
+        /**
+         * uses var method and then Math.sqrt(var)
+         * @return new dataframe which has only one column with std values for each value which original dataframe is sorted by eg. "id"
+         */
         @Override
         public DataFrame std() {
             List<Class<? extends Value>> classList = new ArrayList<>(List.of(getColumnsTypes()));
@@ -517,11 +574,19 @@ public class DataFrame implements  Applyable {
                         toAdd.add(output);
                     }
                 }
-                result.addRow(toAdd);
-            }
+                try{
+                    result.addRow(toAdd);
+                }
+                catch (IOException e){
+                    System.out.println("Adding elements to DataFrame unsuccessful");
+                }            }
             return result;
         }
 
+        /**
+         * variance is calculeted by [(a_0 - mean)^2 + (a_1 -mean)^2 + ...]/n where n=number of elements
+         * @return new dataframe which has only one column with var values for each value which original dataframe is sorted by eg. "id"
+         */
         @Override
         public DataFrame var() {
             List<Class<? extends Value>> classList = new ArrayList<>(List.of(getColumnsTypes()));
@@ -587,8 +652,12 @@ public class DataFrame implements  Applyable {
                         toAdd.add(output);
                     }
                 }
-                result.addRow(toAdd);
-            }
+                try{
+                    result.addRow(toAdd);
+                }
+                catch (IOException e){
+                    System.out.println("Adding elements to DataFrame unsuccessful");
+                }            }
             return result;
         }
 
@@ -606,9 +675,12 @@ public class DataFrame implements  Applyable {
         return columns.stream().map(column -> column.elAtIndex(index)).toArray(Value[]::new);
     }
     /**
-     * implementin Groupby interface methods
+     * implementing Groupby interface methods
+     * making hash map with keys given by @param groupBy and values which are new DataFrames: smaller than original one and
+     * having specific property eg. when grupBy "id" first DataFrame will have columns with only "id" == "a"
      * @param groupBy name of column to sort for
-     * @return inner class having smaller data frames which are sorted by the column given in @param s
+     * @return inner class having smaller data frames which are sorted by the column given in @param groupBy
+     *
      */
     public DataFrameGroupBy grupby(String[] groupBy) {
         HashMap<List<Value>, DataFrame> forResult = new HashMap<>(groupBy.length);

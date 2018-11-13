@@ -30,67 +30,44 @@ public class Column {
     }
 
 
+    /**
+     *
+     * @return type of column
+     */
     public Class<? extends Value> getType() {
         return type;
     }
 
+    /**
+     *
+     * @return name of column
+     */
     public String getName(){
         return name;
     }
 
+    /**
+     *
+     * @return number of elements in this.list
+     */
     public int size(){
         return list.size();
     }
 
+    /**
+     *
+     * @param index
+     * @return value on index given in @param index
+     */
     public Value elAtIndex(int index){
         return list.get(index);
     }
 
-    private String fixedType(String type){
-        switch (type){
-            case "boolean":
-                return "Boolean";
-            case "int":
-                return "Integer";
-            case "float":
-                return "Float";
-            case "double":
-                return "Double";
-            case "byte":
-                return "Byte";
-            case "long":
-                return "Long";
-            case "short":
-                return "Short";
-            case "char":
-                return "Character";
-            default:
-                return type;
-        }
-
-    }
 
     @Override
     public String toString(){
         return "Name: " + name + " type: " + type + "\n contains: " + list +"\n";
     }
-
-    /**
-     * checking if element of list is having same type as column
-     * @param element given to compare types
-     * @return
-     */
-    public boolean checkElement (Value element){
-        if (type.isInstance(element)) return true;
-        return false;
-    }
-
-    public void changeMyList(Value el){
-        for (int i = 0 ; i<list.size(); i++){
-            list.get(i).add(el);
-        }
-    }
-
 
 
 }
