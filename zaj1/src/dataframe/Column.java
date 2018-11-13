@@ -69,5 +69,78 @@ public class Column {
         return "Name: " + name + " type: " + type + "\n contains: " + list +"\n";
     }
 
+    /**
+     * checking if element of list is having same type as column
+     * @param element given to compare types
+     * @return
+     */
+    public boolean checkElement (Value element){
+        if (type.isInstance(element)) return true;
+        return false;
+    }
+
+    public Column add(Value value){
+        Column result = new Column(this.name, this.type);
+        for (Value val: list){
+            result.addElement(val.add(value));
+        }
+        return result;
+    }
+
+    public Column sub(Value value){
+        Column result = new Column(this.name, this.type);
+        for (Value val: list){
+            result.addElement(val.sub(value));
+        }
+        return result;
+    }
+
+    public Column mul(Value value){
+        Column result = new Column(this.name, this.type);
+        for (Value val: list){
+            result.addElement(val.mul(value));
+        }
+        return result;
+    }
+
+    public Column div(Value value){
+        Column result = new Column(this.name, this.type);
+        for (Value val: list){
+            result.addElement(val.div(value));
+        }
+        return result;
+    }
+
+    public Column add(Column column){
+        Column result = new Column(this.name, this.type);
+        for (int i =0; i<list.size(); i++){
+            result.addElement(list.get(i).add(column.elAtIndex(i)));
+        }
+        return result;
+    }
+
+    public Column sub(Column column){
+        Column result = new Column(this.name, this.type);
+        for (int i =0; i<list.size(); i++){
+            result.addElement(list.get(i).sub(column.elAtIndex(i)));
+        }
+        return result;
+    }
+
+    public Column mul(Column column){
+        Column result = new Column(this.name, this.type);
+        for (int i =0; i<list.size(); i++){
+            result.addElement(list.get(i).mul(column.elAtIndex(i)));
+        }
+        return result;
+    }
+
+    public Column div(Column column){
+        Column result = new Column(this.name, this.type);
+        for (int i =0; i<list.size(); i++){
+            result.addElement(list.get(i).div(column.elAtIndex(i)));
+        }
+        return result;
+    }
 
 }
