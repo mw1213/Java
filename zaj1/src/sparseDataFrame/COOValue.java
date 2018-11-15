@@ -1,5 +1,6 @@
 package sparseDataFrame;
 
+import myExceptions.AddingWrongClassesException;
 import value.*;
 
 public class COOValue extends Value {

@@ -3,6 +3,9 @@ package dataframe;
 
 import java.util.ArrayList;
 import java.util.List;
+import myExceptions.*;
+
+import myExceptions.DifferentSizesOfColumnException;
 import value.*;
 
 public class Column {
@@ -25,8 +28,17 @@ public class Column {
     }
 
 
-    public void addElement(Value el){
-        if (type.isInstance(el)) list.add(el);
+    public void addElement(Value el) throws AddingWrongClassesException{
+        if (type.isInstance(el)) {
+            list.add(el);
+        }
+        else{
+            throw new AddingWrongClassesException(this.getType(), el.getClass());
+        }
+    }
+
+    public  void addElementRetarded(Value el){
+        list.add(el);
     }
 
 
@@ -79,7 +91,7 @@ public class Column {
         return false;
     }
 
-    public Column add(Value value){
+    public Column add(Value value) throws AddingWrongClassesException {
         Column result = new Column(this.name, this.type);
         for (Value val: list){
             result.addElement(val.add(value));
@@ -87,7 +99,7 @@ public class Column {
         return result;
     }
 
-    public Column sub(Value value){
+    public Column sub(Value value) throws AddingWrongClassesException {
         Column result = new Column(this.name, this.type);
         for (Value val: list){
             result.addElement(val.sub(value));
@@ -95,7 +107,7 @@ public class Column {
         return result;
     }
 
-    public Column mul(Value value){
+    public Column mul(Value value) throws AddingWrongClassesException {
         Column result = new Column(this.name, this.type);
         for (Value val: list){
             result.addElement(val.mul(value));
@@ -103,7 +115,7 @@ public class Column {
         return result;
     }
 
-    public Column div(Value value){
+    public Column div(Value value) throws AddingWrongClassesException {
         Column result = new Column(this.name, this.type);
         for (Value val: list){
             result.addElement(val.div(value));
@@ -111,7 +123,10 @@ public class Column {
         return result;
     }
 
-    public Column add(Column column){
+    public Column add(Column column) throws DifferentSizesOfColumnException, AddingWrongClassesException {
+        if(this.size()!=column.size()){
+            throw new DifferentSizesOfColumnException(this.getName(), column.getName(), this.size(), column.size());
+        }
         Column result = new Column(this.name, this.type);
         for (int i =0; i<list.size(); i++){
             result.addElement(list.get(i).add(column.elAtIndex(i)));
@@ -119,7 +134,10 @@ public class Column {
         return result;
     }
 
-    public Column sub(Column column){
+    public Column sub(Column column) throws DifferentSizesOfColumnException, AddingWrongClassesException {
+        if(this.size()!=column.size()){
+            throw new DifferentSizesOfColumnException(this.getName(), column.getName(), this.size(), column.size());
+        }
         Column result = new Column(this.name, this.type);
         for (int i =0; i<list.size(); i++){
             result.addElement(list.get(i).sub(column.elAtIndex(i)));
@@ -127,7 +145,10 @@ public class Column {
         return result;
     }
 
-    public Column mul(Column column){
+    public Column mul(Column column) throws DifferentSizesOfColumnException, AddingWrongClassesException {
+        if(this.size()!=column.size()){
+            throw new DifferentSizesOfColumnException(this.getName(), column.getName(), this.size(), column.size());
+        }
         Column result = new Column(this.name, this.type);
         for (int i =0; i<list.size(); i++){
             result.addElement(list.get(i).mul(column.elAtIndex(i)));
@@ -135,7 +156,10 @@ public class Column {
         return result;
     }
 
-    public Column div(Column column){
+    public Column div(Column column) throws DifferentSizesOfColumnException, AddingWrongClassesException {
+        if(this.size()!=column.size()){
+            throw new DifferentSizesOfColumnException(this.getName(), column.getName(), this.size(), column.size());
+        }
         Column result = new Column(this.name, this.type);
         for (int i =0; i<list.size(); i++){
             result.addElement(list.get(i).div(column.elAtIndex(i)));
@@ -143,4 +167,7 @@ public class Column {
         return result;
     }
 
+    public void changeElementToWrong(Value val, int index){
+        list.set(index, val);
+    }
 }

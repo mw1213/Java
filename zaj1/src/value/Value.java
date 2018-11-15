@@ -1,6 +1,7 @@
 package value;
 
 import groupby.*;
+import myExceptions.AddingWrongClassesException;
 
 public abstract class Value implements Cloneable {
 

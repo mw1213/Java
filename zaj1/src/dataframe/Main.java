@@ -1,12 +1,12 @@
 package dataframe;
 
+import myExceptions.AddingWrongClassesException;
+import myExceptions.WrongTypeInColumnException;
 import value.DateTimeValue;
-import value.DoubleValue;
 import value.FloatValue;
 import value.StringValue;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 
 public class Main {
     public static void main(String[] args) {
@@ -42,10 +42,11 @@ public class Main {
 
         System.out.println(df.get("col1"));
 */
+/*
         try {
-            //DataFrame read2 = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\Java\\zaj1\\src\\groupby\\groupby.csv", new Class[]{StringValue.class, DateTimeValue.class, FloatValue.class, FloatValue.class}, true);
+            DataFrame read2 = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\Java\\zaj1\\src\\groupby\\groupby.csv", new Class[]{StringValue.class, DateTimeValue.class, FloatValue.class, FloatValue.class}, true);
             //DataFrame read3 = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\Java\\zaj1\\src\\groupby\\groubymulti.csv", new Class[]{StringValue.class, DateTimeValue.class, DoubleValue.class, DoubleValue.class}, true);
-            DataFrame read2 = new DataFrame("/home/maciej/IdeaProjects/Java/zaj1/src/groupby/groupby.csv", new Class[]{StringValue.class, DateTimeValue.class, FloatValue.class, FloatValue.class}, true);
+            //DataFrame read2 = new DataFrame("/home/maciej/IdeaProjects/Java/zaj1/src/groupby/groupby.csv", new Class[]{StringValue.class, DateTimeValue.class, FloatValue.class, FloatValue.class}, true);
             //DataFrame read3 = new DataFrame("/home/maciej/IdeaProjects/Java/zaj1/src/groupby/groubymulti.csv", new Class[]{StringValue.class, DateTimeValue.class, DoubleValue.class, DoubleValue.class}, true);
 
             //System.out.println(read2.grupby(new String[]{"id"}).max());
@@ -65,6 +66,30 @@ public class Main {
         }
         catch (IOException e){
             System.out.println(e);
+        } catch (WrongTypeInColumnException e) {
+            e.printMessage();
         }
+*/
+        DataFrame read4 = null;
+        try {
+            read4 = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\Java\\zaj1\\src\\groupby\\groupby.csv",
+                    new Class[]{StringValue.class, DateTimeValue.class, FloatValue.class, FloatValue.class}, true, 20);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (WrongTypeInColumnException e) {
+            e.printStackTrace();
+        }
+
+
+        read4.get("total").changeElementToWrong(new StringValue("Dane_zmienione"),4);
+        System.out.println(read4.toString());
+        try {
+            System.out.println(read4.grupby(new String[]{"id"}).max());
+        } catch (WrongTypeInColumnException e) {
+            e.printMessage();
+        } catch (NumberFormatException e){
+            e.printStackTrace();
+        }
+
     }
 }

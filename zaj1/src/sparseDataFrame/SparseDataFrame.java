@@ -8,6 +8,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import dataframe.*;
+import myExceptions.AddingWrongClassesException;
 import value.*;
 
 public class SparseDataFrame extends DataFrame {
@@ -172,7 +173,7 @@ public class SparseDataFrame extends DataFrame {
      * reversing SDF to DF
      * @return DataFrame made of SparseDataFrame
      */
-    public DataFrame toDense(){
+    public DataFrame toDense() throws AddingWrongClassesException {
         String[] names = this.getColumnsNames();
         Class[] types = this.getColumnsTypes();
         DataFrame result = new DataFrame();

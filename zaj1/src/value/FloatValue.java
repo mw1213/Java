@@ -1,5 +1,7 @@
 package value;
 
+import myExceptions.AddingWrongClassesException;
+
 import java.lang.Math;
 
 public class FloatValue extends Value {
@@ -88,11 +90,10 @@ public class FloatValue extends Value {
     }
 
     @Override
-    public boolean gte(Value myData) {
-        String toUse = myData.toString();
-        float useMe = Float.parseFloat(toUse);
-        if (useMe <= this.value) {
-            return true;
+    public boolean gte(Value myData){
+        if (myData instanceof FloatValue){
+            float val = (Float) myData.getValue();
+            return val <= this.value;
         }
         return false;
     }

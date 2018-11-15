@@ -1,6 +1,7 @@
 package sparseDataFrame;
 
 import dataframe.*;
+import myExceptions.*;
 import value.*;
 
 import java.io.IOException;
@@ -25,17 +26,27 @@ public class Main2 {
         System.out.println(sdf);
 
         DataFrame df1 = new DataFrame(new String[]{"kl1", "kl2", "kl3"}, new Class[]{IntegerValue.class, IntegerValue.class, IntegerValue.class});
-        df1.addRow(new IntegerValue(1),new IntegerValue(2),new IntegerValue(3));
-        df1.addRow(new IntegerValue(0),new IntegerValue(0),new IntegerValue(0));
-        df1.addRow(new IntegerValue(0),new IntegerValue(0),new IntegerValue(0));
-        df1.addRow(new IntegerValue(4),new IntegerValue(5),new IntegerValue(6));
+        try {
+            df1.addRow(new IntegerValue(1),new IntegerValue(2),new IntegerValue(3));
+            df1.addRow(new IntegerValue(0),new IntegerValue(0),new IntegerValue(0));
+            df1.addRow(new IntegerValue(0),new IntegerValue(0),new IntegerValue(0));
+            df1.addRow(new IntegerValue(4),new IntegerValue(5),new IntegerValue(6));
+        } catch (WrongTypeInColumnException e) {
+            e.printMessage();
+        }
+
 
         SparseDataFrame sdf2 = new SparseDataFrame(df1, new IntegerValue(0));
         sdf2.printCOOValue();
         System.out.println(sdf2);
 
 
-        DataFrame df = sdf.toDense();
+        DataFrame df = null;
+        try {
+            df = sdf.toDense();
+        } catch (AddingWrongClassesException e) {
+            e.printMessage();
+        }
         System.out.println(df);
 
         SparseDataFrame sdf4 = sdf.get(new String[]{"kol1","kol2"}, true);

@@ -7,6 +7,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.stream.Collectors;
 
 import groupby.*;
+import myExceptions.AddingWrongClassesException;
+import myExceptions.WrongTypeInColumnException;
 import value.*;
 
 
@@ -47,7 +49,7 @@ public class DataFrame implements  Applyable {
      * @throws IOException
      */
 
-    public DataFrame(String address, Class<? extends Value>[] types, boolean header) throws IOException {
+    public DataFrame(String address, Class<? extends Value>[] types, boolean header) throws IOException, WrongTypeInColumnException {
 
         columns = new ArrayList<>();
         FileInputStream fstream;
@@ -88,6 +90,85 @@ public class DataFrame implements  Applyable {
             while ((strLine = br.readLine()) != null){
                 //for (int b=0; b<50;b++) {
                 //strLine = br.readLine();
+                String[] str = strLine.split(",");
+                for (int i = 0; i<str.length; i++){
+                    values[i] = constructors.get(i).newInstance(str[i]);
+                }
+                addRow(values);
+
+            }
+            br.close();
+
+        }
+        catch (FileNotFoundException s){
+            throw new IOException("Flie not found!");
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+            throw new IOException("Method in reading file wasn't file");
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+            throw new IOException("newInstance was't able to perform");
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            throw new IOException("Illegal access to variables");
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+            throw new IOException("Constructor wasn't able to perform");
+        }
+
+    }
+
+
+    /**
+     * constructor for reading from file with max elements to read
+     * @param address file from which data is read
+     * @param types types of data in columns
+     * @param header boolean defining weather column names are written in file or not
+     * @param b max elements to read
+     * @throws IOException
+     * @throws WrongTypeInColumnException
+     */
+    public DataFrame(String address, Class<? extends Value>[] types, boolean header, int b) throws IOException, WrongTypeInColumnException {
+
+        columns = new ArrayList<>();
+        FileInputStream fstream;
+        BufferedReader br;
+
+        try{
+            fstream = new FileInputStream(address);
+
+
+            br = new BufferedReader(new InputStreamReader(fstream));
+
+            String strLine=br.readLine();
+            String[] separated=strLine.split(",");
+            String[] names= new String[types.length];
+            if (!header){
+                Scanner odczyt = new Scanner(System.in);
+                for (int l=0;l<types.length;l++){
+                    System.out.print("Podaj nazwę kolumny: ");
+                    names[l] = odczyt.nextLine();
+                }
+            }
+            if (header){
+                for (int m=0;m<types.length;m++){
+                    names[m]=separated[m];
+                }
+            }
+            for (int i = 0; i < types.length; i++) {
+                if((separated.length <= i)) {
+                    break;
+                }
+                columns.add(new Column(names[i], types[i]));
+            }
+            Value[] values= new Value[columns.size()];
+            List<Constructor<? extends Value>> constructors = new ArrayList<>(types.length);
+            for (int i=0;i<types.length;i++){
+                constructors.add(types[i].getConstructor(String.class));
+            }
+            //while ((strLine = br.readLine()) != null){
+              for (int a=0; a<b;a++) {
+                strLine = br.readLine();
                 String[] str = strLine.split(",");
                 for (int i = 0; i<str.length; i++){
                     values[i] = constructors.get(i).newInstance(str[i]);
@@ -165,7 +246,7 @@ public class DataFrame implements  Applyable {
      * @param objects values to add to the dataframe
      * @return boolean to know if row was added
      */
-    public boolean addRow(Value... objects){
+    public boolean addRow(Value... objects) throws WrongTypeInColumnException{
         if (columns.size() != objects.length) return false;
 
         for (int i =0; i<columns.size(); i++) {
@@ -175,7 +256,12 @@ public class DataFrame implements  Applyable {
         }
 
         for (int i =0; i<columns.size(); i++){
-            columns.get(i).addElement(objects[i]);
+            try {
+                columns.get(i).addElement(objects[i]);
+            } catch (AddingWrongClassesException e) {
+                e.printMessage();
+                throw new WrongTypeInColumnException(i, e.getColumnClass(), e.getElementClass(), columns.get(i).getName());
+            }
         }
         return true;
 
@@ -186,7 +272,7 @@ public class DataFrame implements  Applyable {
      * @param values
      * @return true if adding is successful
      */
-    public boolean addRow(List<Value> values) throws IOException{
+    public boolean addRow(List<Value> values) throws IOException, WrongTypeInColumnException {
         try {
             List<Value> addingValues = new ArrayList<>(values);
             List<Integer> indexesToRemove = new ArrayList<>();
@@ -200,7 +286,12 @@ public class DataFrame implements  Applyable {
             }
 
             for (int i = 0; i < columns.size(); i++) {
-                columns.get(i).addElement(addingValues.get(i));
+                try {
+                    columns.get(i).addElement(addingValues.get(i));
+                } catch (AddingWrongClassesException e) {
+                    e.printMessage();
+                    throw new WrongTypeInColumnException(i, e.getColumnClass(),e.getElementClass(), columns.get(i).getName());
+                }
             }
             return true;
         }
@@ -247,13 +338,30 @@ public class DataFrame implements  Applyable {
      * @param i index of row which should be returned
      * @return new dataframe with chosen row
      */
-    public DataFrame iloc (int i){
+    public DataFrame iloc (int i) {
         DataFrame output = new DataFrame();
 
         for(Column c : columns) {
             Column column = new Column(c.getName(), c.getType());
             if(this.size() > i && i >= 0) {
-                column.addElement(c.elAtIndex(i));
+                try {
+                    column.addElement(c.elAtIndex(i));
+                } catch (AddingWrongClassesException e) {
+                    e.printMessage();
+                }
+            }
+            output.columns.add(column);
+        }
+
+        return output;
+    }
+    public DataFrame ilocGrupBy (int i) {
+        DataFrame output = new DataFrame();
+
+        for(Column c : columns) {
+            Column column = new Column(c.getName(), c.getType());
+            if(this.size() > i && i >= 0) {
+                column.addElementRetarded(c.elAtIndex(i));
             }
             output.columns.add(column);
         }
@@ -268,7 +376,7 @@ public class DataFrame implements  Applyable {
      * @param to ending row
      * @return SDF with rows from range: from - to
      */
-    public DataFrame iloc (int from, int to){
+    public DataFrame iloc (int from, int to) throws AddingWrongClassesException {
         DataFrame output = new DataFrame();
         from = (from < 0) ? 0 : from;
 
@@ -341,11 +449,11 @@ public class DataFrame implements  Applyable {
         }
 
         /**
-         * max is calculeted by comparing each element of each column with max for that column
+         * max is calculated by comparing each element of each column with max for that column
          *  @return new dataframe which has only one column with max values for each value which original dataframe is sorted by eg. "id"
          */
         @Override
-        public DataFrame max() {
+        public DataFrame max() throws WrongTypeInColumnException {
             DataFrame result = new DataFrame(getColumnsNames(), getColumnsTypes());
             for (var values: map.keySet()){
                 List<Value> toAdd = new ArrayList<>(values);
@@ -357,8 +465,17 @@ public class DataFrame implements  Applyable {
                     }
 
                     Value max = column.list.get(0);
-                    for (var value: column.list){
-                        if(value.gte(max)) max=value;
+                    for (int i=0; i<column.list.size();i++){
+                        var value = column.elAtIndex(i);
+
+                        if(value.getClass().equals(column.getType())){
+                            if(value.gte(max)) max=value;
+                        }
+                        else {
+                            throw new WrongTypeInColumnException(i, column.getType(), value.getClass(), column.getName());
+                        }
+
+
                     }
                     toAdd.add(max);
 
@@ -374,11 +491,11 @@ public class DataFrame implements  Applyable {
         }
 
         /**
-         * min is calculeted by comparing each element of each column with min for that column
+         * min is calculated by comparing each element of each column with min for that column
          * @return new dataframe which has only one column with min values for each value which original dataframe is sorted by eg. "id"
          */
         @Override
-        public DataFrame min() {
+        public DataFrame min() throws WrongTypeInColumnException {
             DataFrame result = new DataFrame(getColumnsNames(), getColumnsTypes());
             for (var values: map.keySet()){
                 List<Value> toAdd = new ArrayList<>(values);
@@ -406,11 +523,11 @@ public class DataFrame implements  Applyable {
         }
 
         /**
-         * mean is calculeted by dividing sum by number of elements
+         * mean is calculated by dividing sum by number of elements
          * @return new dataframe which has only one column with mean values for each value which original dataframe is sorted by eg. "id"
          */
         @Override
-        public DataFrame mean() {
+        public DataFrame mean() throws WrongTypeInColumnException {
             List<Class<? extends Value>> classList = new ArrayList<>(List.of(getColumnsTypes()));
             ArrayList<String> nameList = new ArrayList<>(List.of(getColumnsNames()));
             List<Integer> indexesToRemove = new ArrayList<>();
@@ -448,7 +565,8 @@ public class DataFrame implements  Applyable {
                 }
                 catch (IOException e){
                     System.out.println("Adding elements to DataFrame unsuccessful");
-                }            }
+                }
+            }
             return result;
         }
 
@@ -457,7 +575,7 @@ public class DataFrame implements  Applyable {
          * @return new dataframe which has only one column with sum values for each value which original dataframe is sorted by eg. "id"
          */
         @Override
-        public DataFrame sum() {
+        public DataFrame sum() throws WrongTypeInColumnException {
             List<Class<? extends Value>> classList = new ArrayList<>(List.of(getColumnsTypes()));
             ArrayList<String> nameList = new ArrayList<>(List.of(getColumnsNames()));
             List<Integer> indexesToRemove = new ArrayList<>();
@@ -495,7 +613,8 @@ public class DataFrame implements  Applyable {
                 }
                 catch (IOException e){
                     System.out.println("Adding elements to DataFrame unsuccessful");
-                }            }
+                }
+            }
             return result;
         }
 
@@ -504,7 +623,7 @@ public class DataFrame implements  Applyable {
          * @return new dataframe which has only one column with std values for each value which original dataframe is sorted by eg. "id"
          */
         @Override
-        public DataFrame std() {
+        public DataFrame std() throws WrongTypeInColumnException {
             List<Class<? extends Value>> classList = new ArrayList<>(List.of(getColumnsTypes()));
             ArrayList<String> nameList = new ArrayList<>(List.of(getColumnsNames()));
             List<Integer> indexesToRemove = new ArrayList<>();
@@ -579,7 +698,8 @@ public class DataFrame implements  Applyable {
                 }
                 catch (IOException e){
                     System.out.println("Adding elements to DataFrame unsuccessful");
-                }            }
+                }
+            }
             return result;
         }
 
@@ -588,7 +708,7 @@ public class DataFrame implements  Applyable {
          * @return new dataframe which has only one column with var values for each value which original dataframe is sorted by eg. "id"
          */
         @Override
-        public DataFrame var() {
+        public DataFrame var() throws WrongTypeInColumnException {
             List<Class<? extends Value>> classList = new ArrayList<>(List.of(getColumnsTypes()));
             ArrayList<String> nameList = new ArrayList<>(List.of(getColumnsNames()));
             List<Integer> indexesToRemove = new ArrayList<>();
@@ -657,7 +777,8 @@ public class DataFrame implements  Applyable {
                 }
                 catch (IOException e){
                     System.out.println("Adding elements to DataFrame unsuccessful");
-                }            }
+                }
+            }
             return result;
         }
 
@@ -682,7 +803,7 @@ public class DataFrame implements  Applyable {
      * @return inner class having smaller data frames which are sorted by the column given in @param groupBy
      *
      */
-    public DataFrameGroupBy grupby(String[] groupBy) {
+    public DataFrameGroupBy grupby(String[] groupBy) throws WrongTypeInColumnException {
         HashMap<List<Value>, DataFrame> forResult = new HashMap<>(groupBy.length);
         List<Column> columns = Arrays.stream(groupBy).map(this::getColumn).collect(Collectors.toList());
         for (int i =0; i< size(); i++){
@@ -691,7 +812,7 @@ public class DataFrame implements  Applyable {
                 values.add(column.elAtIndex(i));
             }
             if (!forResult.containsKey(values)){
-                forResult.put(values, iloc(i));
+                forResult.put(values, ilocGrupBy(i));
             }
             else {
                 forResult.get(values).addRow(getRow(i));
