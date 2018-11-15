@@ -81,7 +81,7 @@ public class Main {
         }
 
 
-        read4.get("total").changeElementToWrong(new StringValue("Dane_zmienione"),4);
+        read4.get("total").changeElementToWrong(new StringValue("Dane_zmienione"),14);
         System.out.println(read4.toString());
         try {
             System.out.println(read4.grupby(new String[]{"id"}).max());

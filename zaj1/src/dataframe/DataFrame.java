@@ -812,7 +812,7 @@ public class DataFrame implements  Applyable {
                 values.add(column.elAtIndex(i));
             }
             if (!forResult.containsKey(values)){
-                forResult.put(values, ilocGrupBy(i));
+                forResult.put(values, iloc(i));
             }
             else {
                 forResult.get(values).addRow(getRow(i));

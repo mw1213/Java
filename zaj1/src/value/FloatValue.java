@@ -91,9 +91,10 @@ public class FloatValue extends Value {
 
     @Override
     public boolean gte(Value myData){
-        if (myData instanceof FloatValue){
-            float val = (Float) myData.getValue();
-            return val <= this.value;
+        String toUse = myData.toString();
+        float useMe = Float.parseFloat(toUse);
+        if (useMe <= this.value) {
+            return true;
         }
         return false;
     }
