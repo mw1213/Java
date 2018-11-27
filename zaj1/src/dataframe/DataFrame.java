@@ -92,7 +92,11 @@ public class DataFrame implements  Applyable {
                 //strLine = br.readLine();
                 String[] str = strLine.split(",");
                 for (int i = 0; i<str.length; i++){
-                    values[i] = constructors.get(i).newInstance(str[i]);
+                    try {
+                        values[i] = constructors.get(i).newInstance(str[i]);
+                    } catch (InvocationTargetException e) {
+                        throw new WrongTypeInColumnException(0, columns.get(i).getType(), new StringValue().getClass(), columns.get(i).getName());
+                    }
                 }
                 addRow(values);
 
@@ -111,9 +115,6 @@ public class DataFrame implements  Applyable {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
             throw new IOException("Illegal access to variables");
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-            throw new IOException("Constructor wasn't able to perform");
         }
 
     }
@@ -171,7 +172,11 @@ public class DataFrame implements  Applyable {
                 strLine = br.readLine();
                 String[] str = strLine.split(",");
                 for (int i = 0; i<str.length; i++){
-                    values[i] = constructors.get(i).newInstance(str[i]);
+                    try {
+                        values[i] = constructors.get(i).newInstance(str[i]);
+                    } catch (InvocationTargetException e) {
+                        throw new WrongTypeInColumnException(a, columns.get(i).getType(), new StringValue().getClass(), columns.get(i).getName());
+                    }
                 }
                 addRow(values);
 
@@ -190,9 +195,6 @@ public class DataFrame implements  Applyable {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
             throw new IOException("Illegal access to variables");
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-            throw new IOException("Constructor wasn't able to perform");
         }
 
     }
@@ -259,7 +261,6 @@ public class DataFrame implements  Applyable {
             try {
                 columns.get(i).addElement(objects[i]);
             } catch (AddingWrongClassesException e) {
-                e.printMessage();
                 throw new WrongTypeInColumnException(i, e.getColumnClass(), e.getElementClass(), columns.get(i).getName());
             }
         }
@@ -289,7 +290,6 @@ public class DataFrame implements  Applyable {
                 try {
                     columns.get(i).addElement(addingValues.get(i));
                 } catch (AddingWrongClassesException e) {
-                    e.printMessage();
                     throw new WrongTypeInColumnException(i, e.getColumnClass(),e.getElementClass(), columns.get(i).getName());
                 }
             }
@@ -338,7 +338,7 @@ public class DataFrame implements  Applyable {
      * @param i index of row which should be returned
      * @return new dataframe with chosen row
      */
-    public DataFrame iloc (int i) {
+    public DataFrame iloc (int i)  throws WrongTypeInColumnException{
         DataFrame output = new DataFrame();
 
         for(Column c : columns) {
@@ -347,7 +347,7 @@ public class DataFrame implements  Applyable {
                 try {
                     column.addElement(c.elAtIndex(i));
                 } catch (AddingWrongClassesException e) {
-                    e.printMessage();
+                    throw new WrongTypeInColumnException(i, c.getType(), c.elAtIndex(i).getClass(), c.getName());
                 }
             }
             output.columns.add(column);
@@ -376,14 +376,20 @@ public class DataFrame implements  Applyable {
      * @param to ending row
      * @return SDF with rows from range: from - to
      */
-    public DataFrame iloc (int from, int to) throws AddingWrongClassesException {
+    public DataFrame iloc (int from, int to) throws WrongTypeInColumnException {
         DataFrame output = new DataFrame();
         from = (from < 0) ? 0 : from;
 
         for (Column c: columns) {
             Column column = new Column(c.getName(), c.getType());
             for(int i = from; (i <= to) && (i < size()); i++) {
-                column.addElement(c.elAtIndex(i));
+                try {
+                    column.addElement(c.elAtIndex(i));
+                } catch (AddingWrongClassesException e) {
+                    System.out.println("REEEEEEEEEEEEEEEEEE");
+                    e.printMessage();
+                    throw new WrongTypeInColumnException(i, c.getType(), c.elAtIndex(i).getClass(), c.getName());
+                }
             }
             output.columns.add(column);
         }

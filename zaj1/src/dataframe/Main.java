@@ -72,16 +72,19 @@ public class Main {
 */
         DataFrame read4 = null;
         try {
-            read4 = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\Java\\zaj1\\src\\groupby\\groupby.csv",
+            //read4 = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\Java\\zaj1\\src\\groupby\\groupby.csv",
+              //      new Class[]{StringValue.class, DateTimeValue.class, FloatValue.class, FloatValue.class}, true, 20);
+            read4 = new DataFrame("/home/maciej/IdeaProjects/Java/zaj1/src/groupby/groupby.csv",
                     new Class[]{StringValue.class, DateTimeValue.class, FloatValue.class, FloatValue.class}, true, 20);
+
         } catch (IOException e) {
             e.printStackTrace();
         } catch (WrongTypeInColumnException e) {
-            e.printStackTrace();
+            e.printMessage();
         }
 
 
-        read4.get("total").changeElementToWrong(new StringValue("Dane_zmienione"),14);
+        read4.get("total").changeElementToWrong(new StringValue("Dane_zmienione"),4);
         System.out.println(read4.toString());
         try {
             System.out.println(read4.grupby(new String[]{"id"}).max());
