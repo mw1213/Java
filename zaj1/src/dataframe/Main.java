@@ -1,5 +1,6 @@
 package dataframe;
 
+import dataFrameDB.DataFrameDB;
 import myExceptions.AddingWrongClassesException;
 import myExceptions.WrongTypeInColumnException;
 import value.DateTimeValue;
@@ -83,9 +84,14 @@ public class Main {
             e.printMessage();
         }
 
-
+/*        try {
+            System.out.println(read4.grupby(new String[]{"id", "total"}).max());
+        } catch (WrongTypeInColumnException e) {
+            e.printMessage();
+        }
+*/
         read4.get("total").changeElementToWrong(new StringValue("Dane_zmienione"),4);
-        System.out.println(read4.toString());
+        //System.out.println(read4.toString());
         try {
             System.out.println(read4.grupby(new String[]{"id"}).max());
         } catch (WrongTypeInColumnException e) {
@@ -93,6 +99,7 @@ public class Main {
         } catch (NumberFormatException e){
             e.printStackTrace();
         }
+        DataFrameDB dataFrameDB = new DataFrameDB(read4, "read4");
 
     }
 }
