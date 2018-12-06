@@ -3,17 +3,26 @@ package value;
 
 public class IntegerValue extends Value {
     private int value;
-
+    private boolean set;
 
     public IntegerValue(int value) {
         this.value = value;
+        set=true;
     }
 
-    public IntegerValue(String s) {this.value = Integer.parseInt(s);}
+    public IntegerValue(String s) {
+        try {
+            this.value = Integer.parseInt(s);
+            set = true;
+        } catch (Exception e){
+            set=false;
+        }
+    }
 
 
     public IntegerValue() {
         this.value = 0;
+        set=true;
     }
 
     @Override
@@ -123,13 +132,23 @@ public class IntegerValue extends Value {
     @Override
     public Value create(String s){
         IntegerValue result = new IntegerValue();
-        result.value = Integer.parseInt(s);
+        try {
+            result.set=true;
+            result.value = Integer.parseInt(s);
+        }catch (Exception e){
+            result.set=false;
+        }
         return result;
     }
 
     @Override
     public Integer getValue(){
         return this.value;
+    }
+
+    @Override
+    public boolean getSet() {
+        return set;
     }
 
 }

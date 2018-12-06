@@ -9,19 +9,32 @@ import java.util.Locale;
 
 public class DateTimeValue extends Value {
     private Date date;
-
+    private boolean set;
 
     public DateTimeValue (){
         this.date=new Date();
+        set=true;
     }
     public DateTimeValue(Date date) {
         this.date = date;
+        set=true;
     }
 
     public DateTimeValue (String s) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-        date = formatter.parse(s);
+        try{
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+            date = formatter.parse(s);
+            set = true;
+        } catch (Exception e){
+            set =false;
+        }
     }
+
+    @Override
+    public boolean getSet(){
+        return set;
+    }
+
     @Override
     public String toString() {
         DateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);

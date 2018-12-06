@@ -6,17 +6,29 @@ import java.lang.Math;
 
 public class FloatValue extends Value {
     private float value;
-
+    private boolean set;
     public FloatValue() {
         value = (float) 0.0;
+        set=true;
     }
 
-    public FloatValue(String  s){
-        value = Float.parseFloat(s);
+    public FloatValue(String  s) {
+        try{
+           value = Float.parseFloat(s);
+            set = true;
+        } catch (Exception e){
+            set=false;
+        }
     }
 
     public FloatValue(float  s){
         value = s;
+        set=true;
+    }
+
+    @Override
+    public boolean getSet(){
+        return set;
     }
 
     @Override
@@ -123,7 +135,12 @@ public class FloatValue extends Value {
     @Override
     public Value create(String s) {
         FloatValue result = new FloatValue();
-        result.value = Float.parseFloat(s);
+        try{
+            result.value = Float.parseFloat(s);
+            result.set = true;
+        } catch (Exception e){
+            result.set = false;
+        }
         return result;
     }
 

@@ -4,17 +4,24 @@ import java.lang.Math;
 
 public class DoubleValue extends Value {
     private double value;
-
+    private boolean set;
     public DoubleValue() {
         value = 0.0;
+        set=true;
     }
 
     public DoubleValue(String s){
-        value = Double.parseDouble(s);
+        try {
+            value = Double.parseDouble(s);
+            set = true;
+        } catch (Exception e){
+            set=false;
+        }
     }
 
     public DoubleValue(double v) {
         this.value=v;
+        set=true;
     }
 
     @Override
@@ -121,13 +128,22 @@ public class DoubleValue extends Value {
     @Override
     public Value create(String s) {
         DoubleValue result = new DoubleValue();
-        result.value = Double.parseDouble(s);
-        return result;
+        try {
+            result.value = Double.parseDouble(s);
+            result.set=true;
+        } catch (Exception e){
+            set=false;
+        }
+    return result;
     }
-
     @Override
     public Double getValue() {
         return this.value;
+    }
+
+    @Override
+    public boolean getSet() {
+        return set;
     }
 
 

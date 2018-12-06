@@ -243,6 +243,10 @@ public class DataFrame implements  Applyable {
         return null;
     }
 
+    public Column get (int index){
+        return columns.get(index);
+    }
+
     /**
      *
      * @param objects values to add to the dataframe

@@ -32,4 +32,6 @@ public abstract class Value implements Cloneable {
         return clone;
     };
 
+    public abstract boolean getSet();
+
 }

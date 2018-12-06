@@ -31,6 +31,11 @@ public class COOValue extends Value {
         return value;
     }
 
+    @Override
+    public boolean getSet() {
+        return value.getSet();
+    }
+
     public void setValue(Value value) {
         this.value = value;
     }

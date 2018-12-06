@@ -4,12 +4,20 @@ import java.lang.Math;
 
 public class StringValue extends Value {
     private String value;
-
+    private boolean set;
     public StringValue(){
         value = null;
+        set=true;
     }
 
-    public StringValue(String s) {this.value = s;}
+    public StringValue(String s) {
+        try {
+            this.value = s;
+            set = true;
+        } catch (Exception e){
+            set=false;
+        }
+    }
 
     @Override
     public String toString() {
@@ -106,12 +114,22 @@ public class StringValue extends Value {
     @Override
     public Value create(String s) {
         StringValue result = new StringValue();
-        result.value = s;
+        try {
+            result.set = true;
+            result.value = s;
+        } catch (Exception e){
+            result.set=false;
+        }
         return result;
     }
 
     @Override
     public String getValue(){
         return this.value;
+    }
+
+    @Override
+    public boolean getSet() {
+        return set;
     }
 }

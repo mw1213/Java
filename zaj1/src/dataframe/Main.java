@@ -8,6 +8,8 @@ import value.FloatValue;
 import value.StringValue;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 
 public class Main {
     public static void main(String[] args) {
@@ -71,6 +73,7 @@ public class Main {
             e.printMessage();
         }
 */
+
         DataFrame read4 = null;
         try {
             //read4 = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\Java\\zaj1\\src\\groupby\\groupby.csv",
@@ -90,6 +93,8 @@ public class Main {
             e.printMessage();
         }
 */
+
+/*
         read4.get("total").changeElementToWrong(new StringValue("Dane_zmienione"),4);
         //System.out.println(read4.toString());
         try {
@@ -99,7 +104,49 @@ public class Main {
         } catch (NumberFormatException e){
             e.printStackTrace();
         }
-        DataFrameDB dataFrameDB = new DataFrameDB(read4, "read4");
+
+        DataFrameDB dataFrameDB1 = new DataFrameDB(read4, "read4");
+*/
+
+        DataFrame read = null;
+        try {
+            read = new DataFrame("/home/maciej/IdeaProjects/Java/zaj1/src/groupby/groupby.csv",
+                    new Class[]{StringValue.class, DateTimeValue.class, FloatValue.class, FloatValue.class}, true, 100);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (WrongTypeInColumnException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            DataFrameDB dataFrameDB = new DataFrameDB("jdbc:mysql://mysql.agh.edu.pl/maciejw",
+                    "maciejw", "dEgqnqsG8ripMcK3");
+
+            DataFrame fromDataFrameDB;
+            fromDataFrameDB = DataFrameDB.createDataFrameFromDataFrameDB("jdbc:mysql://mysql.agh.edu.pl/maciejw",
+                    "maciejw", "dEgqnqsG8ripMcK3", "SELECT id, total FROM SmallRead");
+            System.out.println(fromDataFrameDB.iloc(0, 50));
+
+            System.out.println(dataFrameDB.getMin("SmallRead"));
+
+            System.out.print(dataFrameDB.groupby("SmallRead", "id", "date"));
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (AddingWrongClassesException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (WrongTypeInColumnException e) {
+            e.printStackTrace();
+        }
+
 
     }
 }
