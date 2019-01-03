@@ -24,12 +24,14 @@ public class DataFrameDB extends DataFrame {
 
 
     public DataFrameDB (String address, String user, String password){
+
         this.address=address;
         this.user=user;
         this.password=password;
         connect();
     }
     public DataFrameDB (DataFrame dataFrame, String name, String address, String user, String password) throws SQLException{
+        this.columns=dataFrame.columns;
         this.address=address;
         this.user=user;
         this.password=password;
@@ -472,8 +474,12 @@ public class DataFrameDB extends DataFrame {
                 String[] colNames = getNameListFromDB(name);
                 String query="SELECT ";
                 for (int i=0;i<colNames.length;i++){
-                    query+="avg("+colNames[i]+")";
-                    if (i!=colNames.length-1) query+=", ";
+                    ResultSetMetaData rsmd = rs.getMetaData();
+                    String type = rsmd.getColumnTypeName(i+1);
+                    if(!type.equals("VARCHAR") && !type.equals("DATE")){
+                        query += "avg(" + colNames[i] + ")";
+                        if (i!=colNames.length-1) query+=", ";
+                    }
                 }
                 query+=" FROM "+name+ " GROUP BY ";
                 for (int i = 0; i < columnNames.size(); i++) {
@@ -507,8 +513,12 @@ public class DataFrameDB extends DataFrame {
                 String[] colNames = getNameListFromDB(name);
                 String query="SELECT ";
                 for (int i=0;i<colNames.length;i++){
-                    query+="std("+colNames[i]+")";
-                    if (i!=colNames.length-1) query+=", ";
+                    ResultSetMetaData rsmd = rs.getMetaData();
+                    String type = rsmd.getColumnTypeName(i+1);
+                    if(!type.equals("VARCHAR") && !type.equals("DATE")) {
+                        query += "std(" + colNames[i] + ")";
+                        if (i != colNames.length - 1) query += ", ";
+                    }
                 }
                 query+=" FROM "+name+ " GROUP BY ";
                 for (int i = 0; i < columnNames.size(); i++) {
@@ -541,9 +551,13 @@ public class DataFrameDB extends DataFrame {
             try {
                 String[] colNames = getNameListFromDB(name);
                 String query="SELECT ";
-                for (int i=0;i<colNames.length;i++){
-                    query+="sum("+colNames[i]+")";
-                    if (i!=colNames.length-1) query+=", ";
+                for (int i=0;i<colNames.length;i++) {
+                    ResultSetMetaData rsmd = rs.getMetaData();
+                    String type = rsmd.getColumnTypeName(i + 1);
+                    if (!type.equals("VARCHAR") && !type.equals("DATE")) {
+                        query += "sum(" + colNames[i] + ")";
+                        if (i != colNames.length - 1) query += ", ";
+                    }
                 }
                 query+=" FROM "+name+ " GROUP BY ";
                 for (int i = 0; i < columnNames.size(); i++) {
@@ -576,9 +590,13 @@ public class DataFrameDB extends DataFrame {
             try {
                 String[] colNames = getNameListFromDB(name);
                 String query="SELECT ";
-                for (int i=0;i<colNames.length;i++){
-                    query+="variance("+colNames[i]+")";
-                    if (i!=colNames.length-1) query+=", ";
+                for (int i=0;i<colNames.length;i++) {
+                    ResultSetMetaData rsmd = rs.getMetaData();
+                    String type = rsmd.getColumnTypeName(i + 1);
+                    if (!type.equals("VARCHAR") && !type.equals("DATE")) {
+                        query += "variance(" + colNames[i] + ")";
+                        if (i != colNames.length - 1) query += ", ";
+                    }
                 }
                 query+=" FROM "+name+ " GROUP BY ";
                 for (int i = 0; i < columnNames.size(); i++) {

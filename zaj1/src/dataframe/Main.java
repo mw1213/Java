@@ -119,7 +119,7 @@ public class Main {
 
             System.out.println(dataFrameDB.getMin("SmallRead"));
 
-            System.out.print(dataFrameDB.grupby("SmallRead", new String[]{"id", "date"}).max());
+            System.out.print(dataFrameDB.grupby("SmallRead", new String[]{"id"}).mean());
 
         } catch (SQLException e) {
             e.printStackTrace();
