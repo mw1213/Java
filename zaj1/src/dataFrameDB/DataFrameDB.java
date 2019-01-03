@@ -1,6 +1,7 @@
 package dataFrameDB;
 
 import dataframe.*;
+import groupby.Applyable;
 import myExceptions.AddingWrongClassesException;
 import myExceptions.WrongTypeInColumnException;
 import value.*;
@@ -9,6 +10,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -18,6 +20,7 @@ public class DataFrameDB extends DataFrame {
     private Statement stmt = null;
     private ResultSet rs = null;
     private String address,user,password;
+    private String name;
 
 
     public DataFrameDB (String address, String user, String password){
@@ -30,6 +33,7 @@ public class DataFrameDB extends DataFrame {
         this.address=address;
         this.user=user;
         this.password=password;
+        this.name=name;
         connect();
         DatabaseMetaData dbm = conn.getMetaData();
         ResultSet rs = dbm.getTables(null, null, name, null);
@@ -145,6 +149,7 @@ public class DataFrameDB extends DataFrame {
 
     public DataFrame getDataFrame (String name) throws SQLException, IllegalAccessException, InvocationTargetException,
             NoSuchMethodException, WrongTypeInColumnException, InstantiationException, AddingWrongClassesException {
+        this.name=name;
         String query = "SELECT * FROM "+name;
         return getDataFrameFromQuery(query);
     }
@@ -348,6 +353,7 @@ public class DataFrameDB extends DataFrame {
     public String getMax (String name) throws SQLException{
         return getOp(name,"MAX");
     }
+
     public DataFrame groupby (String name, String...strings) throws SQLException {
         DataFrame df = new DataFrame();
         String[] colNames = getNameListFromDB(name);
@@ -376,4 +382,244 @@ public class DataFrameDB extends DataFrame {
 
         return df;
     }
+
+    public class DataFrameGroupBy extends DataFrame.DataFrameGroupBy {
+
+        private ArrayList<String> columnNames;
+        private ArrayList<String> allNames;
+        private Statement statement = null;
+        private ResultSet resultSet = null;
+
+        public DataFrameGroupBy(HashMap<List<Value>, DataFrame> map, String[] colNames) {
+            super(map, colNames);
+            columnNames = new ArrayList<>(List.of(colNames));
+        }
+
+        @Override
+        public DataFrame max() {
+            DataFrame result= null;
+            try {
+                String[] colNames = getNameListFromDB(name);
+                String query="SELECT ";
+                for (int i=0;i<colNames.length;i++){
+                    query+="max("+colNames[i]+")";
+                    if (i!=colNames.length-1) query+=", ";
+                }
+                query+=" FROM "+name+ " GROUP BY ";
+                for (int i = 0; i < columnNames.size(); i++) {
+                    query+=(columnNames.get(i));
+                    query+=((i == columnNames.size() - 1) ? ";" : ", ");
+                }
+                System.out.println(query);
+                result = getDataFrameFromQuery(query);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (WrongTypeInColumnException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (AddingWrongClassesException e) {
+                e.printStackTrace();
+            }
+            return result;
+        }
+
+        @Override
+        public DataFrame min() {
+            DataFrame result= null;
+            try {
+                String[] colNames = getNameListFromDB(name);
+                String query="SELECT ";
+                for (int i=0;i<colNames.length;i++){
+                    query+="min("+colNames[i]+")";
+                    if (i!=colNames.length-1) query+=", ";
+                }
+                query+=" FROM "+name+ " GROUP BY ";
+                for (int i = 0; i < columnNames.size(); i++) {
+                    query+=(columnNames.get(i));
+                    query+=((i == columnNames.size() - 1) ? ";" : ", ");
+                }
+                System.out.println(query);
+                result = getDataFrameFromQuery(query);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (WrongTypeInColumnException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (AddingWrongClassesException e) {
+                e.printStackTrace();
+            }
+            return result;
+        }
+
+        @Override
+        public DataFrame mean() {
+            DataFrame result= null;
+            try {
+                String[] colNames = getNameListFromDB(name);
+                String query="SELECT ";
+                for (int i=0;i<colNames.length;i++){
+                    query+="avg("+colNames[i]+")";
+                    if (i!=colNames.length-1) query+=", ";
+                }
+                query+=" FROM "+name+ " GROUP BY ";
+                for (int i = 0; i < columnNames.size(); i++) {
+                    query+=(columnNames.get(i));
+                    query+=((i == columnNames.size() - 1) ? ";" : ", ");
+                }
+                System.out.println(query);
+                result = getDataFrameFromQuery(query);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (WrongTypeInColumnException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (AddingWrongClassesException e) {
+                e.printStackTrace();
+            }
+            return result;
+        }
+
+        @Override
+        public DataFrame std() {
+            DataFrame result= null;
+            try {
+                String[] colNames = getNameListFromDB(name);
+                String query="SELECT ";
+                for (int i=0;i<colNames.length;i++){
+                    query+="std("+colNames[i]+")";
+                    if (i!=colNames.length-1) query+=", ";
+                }
+                query+=" FROM "+name+ " GROUP BY ";
+                for (int i = 0; i < columnNames.size(); i++) {
+                    query+=(columnNames.get(i));
+                    query+=((i == columnNames.size() - 1) ? ";" : ", ");
+                }
+                System.out.println(query);
+                result = getDataFrameFromQuery(query);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (WrongTypeInColumnException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (AddingWrongClassesException e) {
+                e.printStackTrace();
+            }
+            return result;
+        }
+
+        @Override
+        public DataFrame sum() {
+            DataFrame result= null;
+            try {
+                String[] colNames = getNameListFromDB(name);
+                String query="SELECT ";
+                for (int i=0;i<colNames.length;i++){
+                    query+="sum("+colNames[i]+")";
+                    if (i!=colNames.length-1) query+=", ";
+                }
+                query+=" FROM "+name+ " GROUP BY ";
+                for (int i = 0; i < columnNames.size(); i++) {
+                    query+=(columnNames.get(i));
+                    query+=((i == columnNames.size() - 1) ? ";" : ", ");
+                }
+                System.out.println(query);
+                result = getDataFrameFromQuery(query);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (WrongTypeInColumnException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (AddingWrongClassesException e) {
+                e.printStackTrace();
+            }
+            return result;
+        }
+
+        @Override
+        public DataFrame var() {
+            DataFrame result= null;
+            try {
+                String[] colNames = getNameListFromDB(name);
+                String query="SELECT ";
+                for (int i=0;i<colNames.length;i++){
+                    query+="variance("+colNames[i]+")";
+                    if (i!=colNames.length-1) query+=", ";
+                }
+                query+=" FROM "+name+ " GROUP BY ";
+                for (int i = 0; i < columnNames.size(); i++) {
+                    query+=(columnNames.get(i));
+                    query+=((i == columnNames.size() - 1) ? ";" : ", ");
+                }
+                System.out.println(query);
+                result = getDataFrameFromQuery(query);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (WrongTypeInColumnException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (AddingWrongClassesException e) {
+                e.printStackTrace();
+            }
+            return result;
+        }
+
+        @Override
+        public DataFrame apply(Applyable applyable) {
+            return super.apply(applyable);
+        }
+    }
+
+    @Override
+    public DataFrameGroupBy grupby(String[] columnNames) {
+        this.name=name;
+        return new DataFrameGroupBy(null, columnNames);
+    }
+
+    public DataFrameGroupBy grupby(String name ,String[] columnNames) {
+        this.name=name;
+        return new DataFrameGroupBy(null, columnNames);
+    }
+
 }

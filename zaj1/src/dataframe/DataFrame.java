@@ -805,6 +805,7 @@ public class DataFrame implements  Applyable {
     public Value[] getRow(int index){
         return columns.stream().map(column -> column.elAtIndex(index)).toArray(Value[]::new);
     }
+
     /**
      * implementing Groupby interface methods
      * making hash map with keys given by @param groupBy and values which are new DataFrames: smaller than original one and

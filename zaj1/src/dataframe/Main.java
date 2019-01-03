@@ -108,16 +108,6 @@ public class Main {
         DataFrameDB dataFrameDB1 = new DataFrameDB(read4, "read4");
 */
 
-        DataFrame read = null;
-        try {
-            read = new DataFrame("/home/maciej/IdeaProjects/Java/zaj1/src/groupby/groupby.csv",
-                    new Class[]{StringValue.class, DateTimeValue.class, FloatValue.class, FloatValue.class}, true, 100);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (WrongTypeInColumnException e) {
-            e.printStackTrace();
-        }
-
         try {
             DataFrameDB dataFrameDB = new DataFrameDB("jdbc:mysql://mysql.agh.edu.pl/maciejw",
                     "maciejw", "dEgqnqsG8ripMcK3");
@@ -129,7 +119,7 @@ public class Main {
 
             System.out.println(dataFrameDB.getMin("SmallRead"));
 
-            System.out.print(dataFrameDB.groupby("SmallRead", "id", "date"));
+            System.out.print(dataFrameDB.grupby("SmallRead", new String[]{"id", "date"}).max());
 
         } catch (SQLException e) {
             e.printStackTrace();
