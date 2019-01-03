@@ -1,6 +1,7 @@
 package dataframe;
 
 import java.io.*;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -204,7 +205,7 @@ public class DataFrame implements  Applyable {
      * @param name name for new column
      * @return true when column name is unique and can be added to the dataframe
      */
-    private boolean isUnique(String name) {
+    protected boolean isUnique(String name) {
         for(Column c : columns) {
             if(c.getName().equals(name)) {
                 return false;
@@ -445,8 +446,8 @@ public class DataFrame implements  Applyable {
      */
     public class DataFrameGroupBy implements Groupby{
 
-        private HashMap<List<Value>, DataFrame> map;
-        private List<String> colNames;
+        protected HashMap<List<Value>, DataFrame> map;
+        protected List<String> colNames;
 
         /**
          * constructor for inner class
@@ -836,4 +837,90 @@ public class DataFrame implements  Applyable {
     public DataFrame apply(DataFrame data) {
         return null;
     }
+
+    /**
+     * Creates new empty DataFrame object, ready to be filled with data
+     * New object has the same columns' names and classes as original object
+     *
+     * @return new empty DataFrame
+     */
+    public DataFrame emptyDataFrame() {
+        DataFrame nowy = new DataFrame();
+        nowy.columns = columns;
+        return nowy;
+    }
+
+    public DataFrame emptyWithoutData(){
+        DataFrame nowy = new DataFrame();
+        for (int i=0; i<getColumnsTypes().length; i++){
+            if (i >= getColumnsNames().length) break;
+            if(isUnique(columns.get(i).getName())) {
+                nowy.columns.add(new Column(columns.get(i).getName(), columns.get(i).getType()));
+            }
+        }
+        return nowy;
+    }
+
+
+    /**
+     * Adds row to DataFrame object (adds element to every ArrayList in dataBase Map)
+     * Checks whether number of given arguments is compatible to number of columns
+     * Checks whether types of given arguments are compatible with type of each column
+     * If type of argument is not a primitive type, checks whether its users type
+     * Checks for ClassNotFoundException
+     *
+     * @param input Array of Objects to put in columns
+     */
+    public void addElement (Value[] input) {
+        if (input.length != columns.size()) {
+            System.out.println("Nieodpowiednia ilość argumentów!");
+            return;
+        }
+        int a = 0;
+        for (Value i : input) {
+            try {
+                if (columns.get(a).getType() != i.getClass())
+                    throw new WrongTypeInColumnException(a,columns.get(a).getType(), i.getClass(), columns.get(a).getName());
+            } catch (WrongTypeInColumnException e) {
+                e.printMessage();
+                return;
+            }
+            a++;
+        }
+        a = 0;
+        for (Value i : input) {
+            try {
+                columns.get(a).addElement(i);
+            } catch (AddingWrongClassesException e) {
+                e.printMessage();
+            }
+            a++;
+        }
+    }
+    /**
+     * Creates new Value object; its class is the same as given get Value object
+     * new Value object is created according to given String value
+     * function checks for NoSuchMethodException, IllegalAccessException, InvocationTargetException
+     *
+     * @param value String value of value that new Value object will contain
+     * @param get   Value object; its class will be passed while creating new Value
+     * @return new Value object with the same class as get Value object
+     */
+    public static Value creator(String value, Value get) {
+        Value x = null;
+        try {
+            Method getInstance = get.getClass().getMethod("getInstance");
+            Object instancja = getInstance.invoke(null);
+            Method method = get.getClass().getMethod("create", String.class);
+            x = (Value) method.invoke(instancja, value);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return x;
+    }
+
 }

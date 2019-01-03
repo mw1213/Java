@@ -11,7 +11,7 @@ public class Column {
 
     protected String name;
     protected Class<? extends Value> type;
-    protected List<Value> list;
+    public List<Value> list;
 
     public Column(String _name, Class<? extends Value> _type){
         this.name = _name;

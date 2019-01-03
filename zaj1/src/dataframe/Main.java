@@ -1,6 +1,7 @@
 package dataframe;
 
 import dataFrameDB.DataFrameDB;
+import dataFrameThreads.DataFrameThreads;
 import myExceptions.AddingWrongClassesException;
 import myExceptions.WrongTypeInColumnException;
 import value.DateTimeValue;
@@ -73,14 +74,25 @@ public class Main {
             e.printMessage();
         }
 */
-
-        DataFrame read4 = null;
+        DataFrame read3 = null;
+        DataFrameThreads read4 = null;
         try {
             //read4 = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\Java\\zaj1\\src\\groupby\\groupby.csv",
               //      new Class[]{StringValue.class, DateTimeValue.class, FloatValue.class, FloatValue.class}, true, 20);
-            read4 = new DataFrame("/home/maciej/IdeaProjects/Java/zaj1/src/groupby/groupby.csv",
-                    new Class[]{StringValue.class, DateTimeValue.class, FloatValue.class, FloatValue.class}, true, 20);
-
+            Long startTime = System.nanoTime();
+            read3 = new DataFrame("/home/maciej/IdeaProjects/Java/zaj1/src/groupby/groupby.csv",
+                    new Class[]{StringValue.class, DateTimeValue.class, FloatValue.class, FloatValue.class}, true);
+            System.out.println(read3.grupby(new String[]{"id"}).min());
+            Long endTime = System.nanoTime();
+            Long time = endTime-startTime;
+            System.out.println(time);
+            startTime= System.nanoTime();
+            read4 = new DataFrameThreads("/home/maciej/IdeaProjects/Java/zaj1/src/groupby/groupby.csv",
+                    new Class[]{StringValue.class, DateTimeValue.class, FloatValue.class, FloatValue.class}, true);
+            System.out.println(read4.grupby(new String[]{"id"}).min());
+            endTime = System.nanoTime();
+            time = endTime-startTime;
+            System.out.println(time);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (WrongTypeInColumnException e) {
@@ -108,7 +120,7 @@ public class Main {
         DataFrameDB dataFrameDB1 = new DataFrameDB(read4, "read4");
 */
 
-        try {
+ /*       try {
             DataFrameDB dataFrameDB = new DataFrameDB("jdbc:mysql://mysql.agh.edu.pl/maciejw",
                     "maciejw", "dEgqnqsG8ripMcK3");
 
@@ -119,7 +131,7 @@ public class Main {
 
             System.out.println(dataFrameDB.getMin("SmallRead"));
 
-            System.out.print(dataFrameDB.grupby("SmallRead", new String[]{"id"}).mean());
+            System.out.print(dataFrameDB.grupby("SmallRead", new String[]{"id","total"}).mean());
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -136,7 +148,7 @@ public class Main {
         } catch (WrongTypeInColumnException e) {
             e.printStackTrace();
         }
-
+*/
 
     }
 }
