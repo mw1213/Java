@@ -5,12 +5,16 @@ import dataFrameThreads.DataFrameThreads;
 import myExceptions.AddingWrongClassesException;
 import myExceptions.WrongTypeInColumnException;
 import value.DateTimeValue;
+import value.DoubleValue;
 import value.FloatValue;
 import value.StringValue;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 
 public class Main {
     public static void main(String[] args) {
@@ -77,26 +81,104 @@ public class Main {
         DataFrame read3 = null;
         DataFrameThreads read4 = null;
         try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter("/home/maciej/IdeaProjects/Java/zaj1/src/test1.csv"));
             //read4 = new DataFrame("C:\\Users\\Maciej Wilk\\IdeaProjects\\java_course\\Java\\zaj1\\src\\groupby\\groupby.csv",
-              //      new Class[]{StringValue.class, DateTimeValue.class, FloatValue.class, FloatValue.class}, true, 20);
-            Long startTime = System.nanoTime();
-            read3 = new DataFrame("/home/maciej/IdeaProjects/Java/zaj1/src/groupby/groupby.csv",
-                    new Class[]{StringValue.class, DateTimeValue.class, FloatValue.class, FloatValue.class}, true);
-            System.out.println(read3.grupby(new String[]{"id"}).min());
-            Long endTime = System.nanoTime();
-            Long time = endTime-startTime;
-            System.out.println(time);
-            startTime= System.nanoTime();
-            read4 = new DataFrameThreads("/home/maciej/IdeaProjects/Java/zaj1/src/groupby/groupby.csv",
-                    new Class[]{StringValue.class, DateTimeValue.class, FloatValue.class, FloatValue.class}, true);
-            System.out.println(read4.grupby(new String[]{"id"}).min());
-            endTime = System.nanoTime();
-            time = endTime-startTime;
-            System.out.println(time);
-        } catch (IOException e) {
+            //      new Class[]{StringValue.class, DateTimeValue.class, FloatValue.class, FloatValue.class}, true, 20);
+            DataFrame dataFrame = new DataFrame("/home/maciej/IdeaProjects/Java/zaj1/large_groupby.csv", new Class[]{StringValue.class, DateTimeValue.class, StringValue.class, DoubleValue.class,DoubleValue.class}, true);
+
+
+
+            Long startTime;
+            Long endTime;
+            Long time;
+            Float time1;
+            for(int i=0;i<4;i++){
+                DataFrame fromData;
+                DataFrame fromData2;
+                fromData2 = dataFrame.get(new String[]{"id, date, total, val"}, true);
+                DataFrameThreads threads;
+                fromData = dataFrame.get(new String[]{"id, date, total, val"}, true);
+                threads = new DataFrameThreads(fromData2);
+
+                startTime = System.nanoTime();
+                fromData.grupby(new String[]{"id"}).min();
+                endTime = System.nanoTime();
+                time = endTime - startTime;
+                time1 = Float.valueOf(time);
+                writer.write("DataFrame," + String.valueOf(time1) + ",");
+                startTime = System.nanoTime();
+                fromData.grupby(new String[]{"id"}).max();
+                endTime = System.nanoTime();
+                time = endTime - startTime;
+                time1 = Float.valueOf(time);
+                writer.write(String.valueOf(time1) + ",");
+                startTime = System.nanoTime();
+                fromData.grupby(new String[]{"id"}).sum();
+                endTime = System.nanoTime();
+                time = endTime - startTime;
+                time1 = Float.valueOf(time);
+                writer.write(String.valueOf(time1) + ",");
+                startTime = System.nanoTime();
+                fromData.grupby(new String[]{"id"}).mean();
+                endTime = System.nanoTime();
+                time = endTime - startTime;
+                time1 = Float.valueOf(time);
+                writer.write(String.valueOf(time1) + ",");
+                startTime = System.nanoTime();
+                fromData.grupby(new String[]{"id"}).var();
+                endTime = System.nanoTime();
+                time = endTime - startTime;
+                time1 = Float.valueOf(time);
+                writer.write(String.valueOf(time1) + ",");
+                startTime = System.nanoTime();
+                fromData.grupby(new String[]{"id"}).std();
+                endTime = System.nanoTime();
+                time = endTime - startTime;
+                time1 = Float.valueOf(time);
+                writer.write(String.valueOf(time1));
+                writer.newLine();
+
+                startTime = System.nanoTime();
+                threads.grupby(new String[]{"id"}).min();
+                endTime = System.nanoTime();
+                time = endTime - startTime;
+                time1 = Float.valueOf(time);
+                writer.write("DataFrameThreads," + String.valueOf(time1) + ",");
+                startTime = System.nanoTime();
+                threads.grupby(new String[]{"id"}).max();
+                endTime = System.nanoTime();
+                time = endTime - startTime;
+                time1 = Float.valueOf(time);
+                writer.write(String.valueOf(time1) + ",");
+                startTime = System.nanoTime();
+                threads.grupby(new String[]{"id"}).sum();
+                endTime = System.nanoTime();
+                time = endTime - startTime;
+                time1 = Float.valueOf(time);
+                writer.write(String.valueOf(time1) + ",");
+                startTime = System.nanoTime();
+                threads.grupby(new String[]{"id"}).mean();
+                endTime = System.nanoTime();
+                time = endTime - startTime;
+                time1 = Float.valueOf(time);
+                writer.write(String.valueOf(time1) + ",");
+                startTime = System.nanoTime();
+                threads.grupby(new String[]{"id"}).var();
+                endTime = System.nanoTime();
+                time = endTime - startTime;
+                time1 = Float.valueOf(time);
+                writer.write(String.valueOf(time1) + ",");
+                startTime = System.nanoTime();
+                threads.grupby(new String[]{"id"}).std();
+                endTime = System.nanoTime();
+                time = endTime - startTime;
+                time1 = Float.valueOf(time);
+                writer.write(String.valueOf(time1));
+                writer.newLine();
+            }
+            writer.close();
+        } catch (IOException | WrongTypeInColumnException e) {
             e.printStackTrace();
-        } catch (WrongTypeInColumnException e) {
-            e.printMessage();
         }
 
 /*        try {

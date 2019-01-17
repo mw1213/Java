@@ -14,35 +14,39 @@ import java.util.stream.Collectors;
 public class DataFrameThreads extends DataFrame {
 
 
-        static DataFrame counted;
-        static DataFrame given;
-        static List<Value> keys;
-        static String func = "";
+    static DataFrame counted;
+    static DataFrame given;
+    static List<Value> keys;
+    static String func = "";
 
-        public DataFrameThreads() {
-            super();
-        }
+    public DataFrameThreads() {
+        super();
+    }
 
-        public DataFrameThreads(String[] colsInput, Class<? extends Value>[] typesInput) {
-            super(colsInput, typesInput);
-        }
+    public DataFrameThreads(String[] colsInput, Class<? extends Value>[] typesInput) {
+        super(colsInput, typesInput);
+    }
 
-        public DataFrameThreads(List<String> names, List<Class<? extends Value>> types) {
-            columns = new ArrayList<>();
-            for (int i=0; i<types.size(); i++){
-                if (i >= names.size()) break;
+    public DataFrameThreads(List<String> names, List<Class<? extends Value>> types) {
+        columns = new ArrayList<>();
+        for (int i=0; i<types.size(); i++){
+            if (i >= names.size()) break;
 
-                if(isUnique(names.get(i))) {
-                    columns.add(new Column(names.get(i), types.get(i)));
-                }
+            if(isUnique(names.get(i))) {
+                columns.add(new Column(names.get(i), types.get(i)));
             }
         }
+    }
 
-        public DataFrameThreads(String address, Class<? extends Value>[] typesInput, boolean header) throws IOException, WrongTypeInColumnException {
-            super(address, typesInput, header);
-        }
+    public DataFrameThreads(String address, Class<? extends Value>[] typesInput, boolean header) throws IOException, WrongTypeInColumnException {
+        super(address, typesInput, header);
+    }
 
-        @Override
+    public DataFrameThreads(DataFrame fromData2) {
+        this.columns = fromData2.columns;
+    }
+
+    @Override
         public DataFrameGroupBy grupby(String[] groupBy) throws WrongTypeInColumnException {
             HashMap<List<Value>, DataFrame> forResult = new HashMap<>(groupBy.length);
             List<Column> columns = Arrays.stream(groupBy).map(this::getColumn).collect(Collectors.toList());
@@ -74,6 +78,10 @@ public class DataFrameThreads extends DataFrame {
                 super(_map, _colNames);
             }
 
+            /**
+             * this functions are just overide from dataframe but threads has other system for calculation
+             * @return
+             */
             public DataFrame max() {
                 func = "max";
                 return uni();
@@ -104,7 +112,13 @@ public class DataFrameThreads extends DataFrame {
                 return uni();
             }
 
-
+            /**
+             * uni makes a dataframe with already counted calculations because overriden functions gives uni() names of
+             * calculations which it has to do in its threads
+             * calculations are handled by threads
+             * there is no thread pool implemeted so used sleep to wait for all results to be calculated
+             * @return final results as dataframe
+             */
             public DataFrame uni() {
                 int iterator = 0;
                 for (Map.Entry<List<Value>, DataFrame> entry : map.entrySet()) {
@@ -201,10 +215,24 @@ public class DataFrameThreads extends DataFrame {
             }
         }
 
+    /**
+     * this will asure that wrong data won't be written to actual dataframe
+     * @param toAdd
+     * @throws IOException
+     * @throws WrongTypeInColumnException
+     */
         public synchronized void add(DataFrame toAdd) throws IOException, WrongTypeInColumnException {
             counted.addRow((List<Value>) toAdd);
         }
 
+    /**
+     * function below are just implementation of DataFrame function, but they are used by a smaller collection of data:
+     * eg. for each group made by groupby "id"
+     * @param keyed
+     * @param dated
+     * @throws IOException
+     * @throws WrongTypeInColumnException
+     */
         public void maxing(List<Value> keyed, DataFrame dated) throws IOException, WrongTypeInColumnException {
             DataFrame computed = counted.emptyDataFrame();
             Value[] input = new Value[dated.columns.size()];
